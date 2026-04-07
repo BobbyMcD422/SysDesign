@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 
 import RootLayout from "./layouts/RootLayout";
 import LoginPage from "./pages/LoginPage";
+import NotFound from "./pages/NotFound";
 // import DashboardPage from "./pages/DashboardPage";
 
 const router = createBrowserRouter([
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <LoginPage /> },
       // { path: "dashboard", element: <DashboardPage /> },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

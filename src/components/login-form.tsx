@@ -28,7 +28,7 @@ export function LoginForm({
             type="email"
             placeholder="email@example.com"
             required
-            className="bg-background"
+            className="bg-background placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
           />
         </Field>
         <Field>
