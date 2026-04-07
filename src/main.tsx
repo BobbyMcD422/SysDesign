@@ -1,7 +1,25 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import { createBrowserRouter, RouterProvider } from "react-router";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <App />
+import RootLayout from "./layouts/RootLayout";
+import LoginPage from "./pages/LoginPage";
+// import DashboardPage from "./pages/DashboardPage";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <LoginPage /> },
+      // { path: "dashboard", element: <DashboardPage /> },
+    ],
+  },
+]);
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <RouterProvider router={router} />
+  </StrictMode>
 );
