@@ -8,10 +8,15 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
+type LoginFormProps = React.ComponentProps<"form"> & {
+  error?: string
+}
+
 export function LoginForm({
   className,
+  error,
   ...props
-}: React.ComponentProps<"form">) {
+}: LoginFormProps) {
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
@@ -25,6 +30,7 @@ export function LoginForm({
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input
             id="email"
+            name="email"
             type="email"
             placeholder="email@example.com"
             required
@@ -43,11 +49,20 @@ export function LoginForm({
           </div>
           <Input
             id="password"
+            name="password"
             type="password"
+            pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$"
             required
             className="bg-background"
           />
         </Field>
+        {error ? (
+          <Field>
+            <FieldDescription className="text-center text-destructive text-red-500">
+              {error}
+            </FieldDescription>
+          </Field>
+        ) : null}
         <Field>
           <Button type="submit">Login</Button>
         </Field>
