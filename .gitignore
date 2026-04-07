@@ -24,4 +24,9 @@ dist-ssr
 *.sw?
 *.env
 .venv
-.env
+.env*
+
+# byte-compiled/optimized/dll files
+__pycache__/
+*.py[cod]
+*$py.class
