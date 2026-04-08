@@ -1,3 +1,21 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+.git
+.gitignore
+*.md
+.DS_Store
+__MACOSX
+*.log
+.vscode
+.idea
+
 # Logs
 logs
 *.log
@@ -30,8 +48,3 @@ dist-ssr
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Default Accounts + Passwords
-default_users.json
-
-/temp/
