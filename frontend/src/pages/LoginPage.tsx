@@ -40,7 +40,7 @@ export default function LoginPage() {
         <img
           src={bannerPic}
           alt="Image"
-          className="absolute top-1/2 -translate-y-1/2 h-3/4 w-full object-cover dark:brightness-[0.6]"
+          className="absolute top-1/2 -translate-y-1/2 h-3/4 w-full object-cover dark:brightness-[0.8]"
         />
       </div>
     </div>
