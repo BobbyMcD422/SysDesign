@@ -1,9 +1,9 @@
-import re
+import re, bcrypt
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 # DB Stuff
-from .database import Base, SessionLocal, engine
+from .database import SessionLocal
 from .models import User
 from .schemas import LoginRequest
 from email_validator import validate_email, EmailNotValidError
@@ -22,8 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()
@@ -60,6 +58,13 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     if emailIsValid and passIsValid:
         user = db.query(User).filter(User.email == validEmail).first()
         if not user:
-            raise HTTPException(status_code=401, detail=f"Invalid email or password {validPass} {validEmail}")
+            raise HTTPException(status_code=401, detail=f"Invalid email or password")
 
-        return {"ok": True, "message": "Login request received"}
+        # PW Checks Here
+        if bcrypt.checkpw(
+            validPass.encode("utf-8"),
+            user.password_hash.encode("utf-8")
+        ):
+            return {"ok": True, "message": "Login request received"}
+        else:
+            raise HTTPException(status_code=401, detail=f"Invalid password")
