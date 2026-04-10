@@ -2,10 +2,11 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"
 
 type LoginResponse = {
-  message?: string
-  user?: {
-    id: string
+  ok: boolean
+  user: {
+    id: number
     email: string
+    role: string
   }
 }
 
@@ -13,13 +14,17 @@ export async function login(
   email: string,
   password: string,
 ): Promise<LoginResponse | null> {
-  const res = await fetch(`${API_BASE_URL}/login`, {
+  const body = new URLSearchParams()
+  body.set("username", email)
+  body.set("password", password)
+
+  const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     credentials: "include",
-    body: JSON.stringify({ email, password }),
+    body,
   })
 
   if (!res.ok) {
@@ -29,6 +34,37 @@ export async function login(
 
   if (res.status === 204) {
     return null
+  }
+
+  return res.json().catch(() => null)
+}
+
+export async function getCurrentUser() {
+  const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+    credentials: "include",
+  })
+
+  if (res.status === 401) {
+    return null
+  }
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null)
+    throw new Error(errorData?.detail || "Failed to fetch current user")
+  }
+
+  return res.json()
+}
+
+export async function logout() {
+  const res = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  })
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null)
+    throw new Error(errorData?.detail || "Logout failed")
   }
 
   return res.json().catch(() => null)
