@@ -49,6 +49,8 @@ async def login_for_access_token(
         "user": {
             "id": user.id,
             "email": user.email,
+            "fname": user.fname,
+            "lname": user.lname,
             "role": user.role,
         },
     }
@@ -65,5 +67,7 @@ async def get_me(current_user: User = Depends(get_current_active_user)):
     return {
         "id": current_user.id,
         "email": current_user.email,
+        "fname": current_user.fname,
+        "lname": current_user.lname,
         "role": current_user.role,
     }
