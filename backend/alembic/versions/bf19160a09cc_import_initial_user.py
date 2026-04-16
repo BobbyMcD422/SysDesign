@@ -3,34 +3,26 @@ import json
 import bcrypt
 from alembic import op
 import sqlalchemy as sa
+from typing import Sequence, Union
 
-revision = "521e3a9533ac"
-down_revision = None
+revision = "bf19160a09cc"
+down_revision: str = "59969d740780"
 branch_labels = None
 depends_on = None
 
+
 def upgrade() -> None:
-
-    op.create_table(
-        "users",
-        sa.Column("id", sa.Integer(), primary_key=True, nullable=False),
-        sa.Column("email", sa.String(length=255), nullable=False),
-        sa.Column("password_hash", sa.String(length=255), nullable=False),
-        sa.Column("role", sa.String(length=255), nullable=False),
-    )
-    op.create_index(op.f("ix_users_id"), "users", ["id"], unique=False)
-    op.create_index(op.f("ix_users_email"), "users", ["email"], unique=True)
-
     users_table = sa.table(
         "users",
         sa.column("email", sa.String),
         sa.column("password_hash", sa.String),
+        sa.column("fname", sa.String),
+        sa.column("lname", sa.String),
         sa.column("role", sa.String),
     )
 
     seed_path = Path(__file__).resolve().parents[1] / "seeds" / "default_users.json"
     raw_users = json.loads(seed_path.read_text())
-    print(f"Seed path: {seed_path}")
 
     rows = []
     for user in raw_users:
@@ -41,13 +33,21 @@ def upgrade() -> None:
                     user["password"].encode("utf-8"),
                     bcrypt.gensalt(),
                 ).decode("utf-8"),
+                "fname": user["fname"],
+                "lname": user["lname"],
                 "role": user["role"],
             }
         )
 
-    op.bulk_insert(users_table, rows)
+    if rows:
+        op.bulk_insert(users_table, rows)
+
 
 def downgrade() -> None:
-    op.drop_index(op.f("ix_users_email"), table_name="users")
-    op.drop_index(op.f("ix_users_id"), table_name="users")
-    op.drop_table("users")
+    seed_path = Path(__file__).resolve().parents[1] / "seeds" / "default_users.json"
+    raw_users = json.loads(seed_path.read_text())
+
+    emails = [user["email"] for user in raw_users]
+    if emails:
+        quoted = ", ".join(f"'{email}'" for email in emails)
+        op.execute(f"DELETE FROM users WHERE email IN ({quoted})")
