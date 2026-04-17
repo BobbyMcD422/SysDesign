@@ -22,3 +22,27 @@ export function ProtectedRoute() {
 
   return <Outlet />
 }
+
+export function AdminRoute() {
+  const { user, loading } = useAuth()
+  const { t } = useTranslation()
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center gap-3 text-sm text-zinc-500">
+        <Spinner className="size-8"/>
+        <span>{t("common.loading")}</span>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />
+  }
+
+  if (user.role !== "admin") {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return <Outlet />
+}
