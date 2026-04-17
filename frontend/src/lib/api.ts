@@ -6,6 +6,8 @@ type LoginResponse = {
   user: {
     id: number
     email: string
+    fname: string
+    lname: string
     role: string
   }
 }
@@ -39,7 +41,15 @@ export async function login(
   return res.json().catch(() => null)
 }
 
-export async function getCurrentUser() {
+type CurrentUserResponse = {
+  id: number
+  email: string
+  fname: string
+  lname: string
+  role: string
+}
+
+export async function getCurrentUser(): Promise<CurrentUserResponse | null> {
   const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
     credentials: "include",
   })

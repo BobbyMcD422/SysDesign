@@ -1,12 +1,26 @@
 import { useState } from "react"
-import { useNavigate } from "react-router"
+import { Navigate, useNavigate } from "react-router"
 import { LoginForm } from "@/components/login-form"
 import { login } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
 import bannerPic from "@/assets/capa.png"
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { user, loading, refreshUser } = useAuth()
   const [error, setError] = useState("")
+
+  if (loading) {
+    return (
+      <div className="flex min-h-svh items-center justify-center text-sm text-zinc-500">
+        Loading...
+      </div>
+    )
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />
+  }
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -18,6 +32,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password)
+      await refreshUser()
       navigate("/dashboard")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
