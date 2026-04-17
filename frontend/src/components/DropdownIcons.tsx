@@ -14,10 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/lib/auth-context"
+import { useTranslation } from "react-i18next"
 
 export function DropdownMenuIcons() {
   const navigate = useNavigate()
   const { user, logoutUser } = useAuth()
+  const { t } = useTranslation()
 
   async function handleLogout() {
     await logoutUser()
@@ -39,11 +41,11 @@ export function DropdownMenuIcons() {
       <DropdownMenuContent align="end" className="bg-zinc-100 text-black dark:bg-zinc-800 dark:text-white">
         <DropdownMenuItem>
           <UserIcon />
-          Profile
+          {t("navigation.profile")}
         </DropdownMenuItem>
         <DropdownMenuItem>
           <SettingsIcon />
-          Settings
+          {t("navigation.settings")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -52,7 +54,7 @@ export function DropdownMenuIcons() {
           className="text-red-500"
         >
           <LogOutIcon />
-          Log out
+          {t("navigation.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

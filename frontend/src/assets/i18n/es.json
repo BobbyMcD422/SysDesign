@@ -1,0 +1,33 @@
+{
+  "app": {
+    "name": "Administración Académica",
+    "theme": "Modo Oscuro"
+  },
+  "common": {
+    "loading": "Cargando..."
+  },
+  "auth": {
+    "login": {
+      "title": "Inicia sesión en tu cuenta",
+      "subtitle": "Ingresa tu correo electrónico para iniciar sesión en tu cuenta",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "correo@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar sesión",
+      "signupPrompt": "¿No tienes una cuenta?",
+      "signupLink": "Regístrate",
+      "defaultError": "Error al iniciar sesión"
+    }
+  },
+  "navigation": {
+    "dashboard": "Panel",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "subtitle": "Has iniciado sesión."
+  }
+}

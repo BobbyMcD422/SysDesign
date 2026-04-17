@@ -1,0 +1,33 @@
+{
+  "app": {
+    "name": "Academic Admin",
+    "theme": "Dark Mode"
+  },
+  "common": {
+    "loading": "Loading..."
+  },
+  "auth": {
+    "login": {
+      "title": "Login to your account",
+      "subtitle": "Enter your email below to login to your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@example.com",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Login",
+      "signupPrompt": "Don't have an account?",
+      "signupLink": "Sign up",
+      "defaultError": "Login failed"
+    }
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "You are logged in."
+  }
+}

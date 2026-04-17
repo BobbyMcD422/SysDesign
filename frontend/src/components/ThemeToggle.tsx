@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
 
 export default function ThemeToggle() {
   const [dark, setDark] = useState(() => {
     return localStorage.getItem("theme") === "dark";
   });
+
+  const { t } = useTranslation()
 
   useEffect(() => {
     const root = document.documentElement;
@@ -22,7 +25,7 @@ export default function ThemeToggle() {
   return (
     <div className="flex items-center space-x-2">
       <Switch className="data-[state=checked]:bg-slate-400 data-[state=unchecked]:bg-zinc-700" id="dark-mode" checked={dark} onCheckedChange={setDark} />
-      <Label htmlFor="dark-mode">Dark Mode</Label>
+      <Label htmlFor="dark-mode">{t("app.theme")}</Label>
     </div>
     
   );
