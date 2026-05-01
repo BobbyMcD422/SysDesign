@@ -29,5 +29,19 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "You are logged in."
+  },
+  "manageUsers": {
+    "title": "Manage Users",
+    "subtitle": "Create, review, and remove user accounts.",
+    "addUser": "Add New User",
+    "dialog": {
+      "title": "Add New User",
+      "description": "Create a new user account and assign a role."
+    },
+    "card": {
+      "email": "Email",
+      "role": "Role",
+      "selfDeleteDisabled": "You cannot delete your own account."
+    }
   }
 }

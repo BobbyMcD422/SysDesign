@@ -1,6 +1,5 @@
 import {
   LogOutIcon,
-  SettingsIcon,
   UserIcon,
 } from "lucide-react"
 import { useNavigate } from "react-router"
@@ -43,11 +42,6 @@ export function DropdownMenuIcons() {
           <UserIcon />
           {t("navigation.profile")}
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <SettingsIcon />
-          {t("navigation.settings")}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
           onClick={() => void handleLogout()}

@@ -29,5 +29,19 @@
   "dashboard": {
     "title": "Panel",
     "subtitle": "Has iniciado sesión."
+  },
+  "manageUsers": {
+    "title": "Gestionar usuarios",
+    "subtitle": "Crea, revisa y elimina cuentas de usuario.",
+    "addUser": "Agregar usuario",
+    "dialog": {
+      "title": "Agregar usuario",
+      "description": "Crea una nueva cuenta de usuario y asigna un rol."
+    },
+    "card": {
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "selfDeleteDisabled": "No puedes eliminar tu propia cuenta."
+    }
   }
 }

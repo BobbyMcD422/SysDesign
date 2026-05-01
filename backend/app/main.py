@@ -2,6 +2,7 @@ import re, bcrypt
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from auth.routes.auth_router import auth_router
+from app.routes.users_router import users_router
 
 def has_uppercase(s):
     """Returns True if the string contains at least one uppercase letter."""
@@ -18,6 +19,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
 
 @app.get("/")
 def root():
