@@ -41,7 +41,10 @@
     "card": {
       "email": "Correo electrónico",
       "role": "Rol",
-      "selfDeleteDisabled": "No puedes eliminar tu propia cuenta."
+      "selfDeleteDisabled": "No puedes eliminar tu propia cuenta.",
+      "fname": "Nombre",
+      "lname": "Apellido",
+      "tempPass": "Contraseña temporal"
     }
   }
 }

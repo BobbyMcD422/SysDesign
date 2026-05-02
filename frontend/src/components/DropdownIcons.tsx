@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/lib/auth-context"
@@ -38,7 +37,9 @@ export function DropdownMenuIcons() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="bg-zinc-100 text-black dark:bg-zinc-800 dark:text-white">
-        <DropdownMenuItem>
+        <DropdownMenuItem
+          //onClick={}
+        >
           <UserIcon />
           {t("navigation.profile")}
         </DropdownMenuItem>

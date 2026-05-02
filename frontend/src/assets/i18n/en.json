@@ -41,7 +41,10 @@
     "card": {
       "email": "Email",
       "role": "Role",
-      "selfDeleteDisabled": "You cannot delete your own account."
+      "selfDeleteDisabled": "You cannot delete your own account.",
+      "fname": "First Name",
+      "lname": "Last Name",
+      "tempPass": "Temporary Password"
     }
   }
 }

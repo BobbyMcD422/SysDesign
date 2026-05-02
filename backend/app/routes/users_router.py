@@ -7,6 +7,7 @@ from app.helper_functions.user_functions import (
     delete_user_by_id,
     get_all_users,
     get_user_by_email,
+    normalize_email,
 )
 from app.models import User
 from app.schemas import CreateUserRequest, UserResponse
@@ -32,21 +33,27 @@ def add_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
-    existing_user = get_user_by_email(db, payload.email.strip().lower())
+    existing_user = get_user_by_email(db, normalize_email(payload.email))
     if existing_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             detail="A user with that email already exists",
         )
 
-    return create_user(
-        db,
-        email=payload.email,
-        password=payload.password,
-        fname=payload.fname,
-        lname=payload.lname,
-        role=payload.role,
-    )
+    try:
+        return create_user(
+            db,
+            email=payload.email,
+            password=payload.password,
+            fname=payload.fname,
+            lname=payload.lname,
+            role=payload.role,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
 
 
 @users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)

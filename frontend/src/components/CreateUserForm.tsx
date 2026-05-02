@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useTranslation } from "react-i18next";
 
 type User = {
   id: number
@@ -21,6 +22,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"
 
 export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
+  const { t } = useTranslation();
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
@@ -70,22 +72,22 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="fname">First name</FieldLabel>
+          <FieldLabel htmlFor="fname">{t("manageUsers.card.fname")}</FieldLabel>
           <Input id="fname" name="fname" required />
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="lname">Last name</FieldLabel>
+          <FieldLabel htmlFor="lname">{t("manageUsers.card.lname")}</FieldLabel>
           <Input id="lname" name="lname" required />
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <FieldLabel htmlFor="email">{t("manageUsers.card.email")}</FieldLabel>
           <Input id="email" name="email" type="email" required />
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="password">Temporary password</FieldLabel>
+          <FieldLabel htmlFor="password">{t("manageUsers.card.tempPass")}</FieldLabel>
           <Input 
             id="password" 
             name="password" 
@@ -95,7 +97,7 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="role">Role</FieldLabel>
+          <FieldLabel htmlFor="role">{t("manageUsers.card.role")}</FieldLabel>
           <select
             id="role"
             name="role"
