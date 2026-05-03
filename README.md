@@ -146,9 +146,19 @@ http://localhost:5173
 Email sending uses the Gmail API. The OAuth files are local-only and should not be committed.
 
 Expected local files:
+- `credentials.json`
 - `token.json`
 
-Keep these out of Git. `token.json` is generated after OAuth login.
+Keep these out of Git. `token.json` is generated after OAuth login, and `credentials.json` should be supplied privately by whoever owns the Gmail API project.
+
+Place `credentials.json` in one of these locations:
+
+```text
+backend/credentials.json
+backend/app/email/credentials.json
+```
+
+The backend checks both locations when sending Gmail messages.
 
 If these files are missing, the email-sending route may fail or prompt for OAuth setup depending on the runtime environment.
 

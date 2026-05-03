@@ -318,7 +318,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <article className="flex min-h-[520px] flex-col bg-zinc-50 dark:bg-zinc-950">
+        <article className="flex min-h-130 flex-col bg-zinc-50 dark:bg-zinc-950">
           <header className="border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
