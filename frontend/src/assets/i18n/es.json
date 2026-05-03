@@ -5,8 +5,8 @@
   },
   "common": {
     "loading": "Cargando...",
-    "showPassword": "Mostrar contraseÃ±a",
-    "hidePassword": "Ocultar contraseÃ±a"
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
   },
   "auth": {
     "login": {
@@ -34,17 +34,17 @@
   },
   "profile": {
     "userId": "ID de usuario",
-    "email": "Correo electrÃ³nico",
+    "email": "Correo electrónico",
     "role": "Rol",
     "changePassword": {
-      "title": "Cambiar contraseÃ±a",
-      "description": "Usa al menos 6 caracteres con mayÃºsculas, minÃºsculas y un nÃºmero.",
-      "newPassword": "Nueva contraseÃ±a",
-      "confirmPassword": "Confirmar contraseÃ±a",
-      "passwordMismatch": "Las contraseÃ±as no coinciden",
-      "success": "ContraseÃ±a actualizada correctamente",
-      "defaultError": "No se pudo cambiar la contraseÃ±a",
-      "submit": "Actualizar contraseÃ±a",
+      "title": "Cambiar contraseña",
+      "description": "Usa al menos 6 caracteres con mayúsculas, minúsculas y un número.",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "success": "Contraseña actualizada correctamente",
+      "defaultError": "No se pudo cambiar la contraseña",
+      "submit": "Actualizar contraseña",
       "submitting": "Actualizando..."
     }
   },
@@ -60,7 +60,7 @@
       "button": "Insertar usuarios en masa",
       "title": "Insertar usuarios en masa",
       "description": "Sube un archivo CSV o JSON para crear varios usuarios a la vez.",
-      "dropTitle": "Arrastra un archivo de usuarios aqui o haz clic para buscar",
+      "dropTitle": "Arrastra un archivo de usuarios aquí o haz clic para buscar",
       "dropDescription": "Formatos aceptados: .csv o .json",
       "formatHelp": "Columnas CSV o claves JSON: fname, lname, email, password, role, lang. Usa lang en o es.",
       "noFile": "Elige un archivo antes de subirlo.",
@@ -81,7 +81,7 @@
       "tempPass": "Contraseña temporal",
       "userLanguage": "Idioma del usuario",
       "english": "English",
-      "spanish": "Espanol"
+      "spanish": "Español"
     }
   }
 }
