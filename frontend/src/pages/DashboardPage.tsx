@@ -12,12 +12,15 @@ import {
   Reply,
   Search,
   Send,
+  Shield,
   Star,
   Trash2,
 } from "lucide-react";
+import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
 type MailFolder = "inbox" | "starred" | "sent" | "archive";
@@ -132,6 +135,7 @@ const emails: Email[] = [
 ];
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [activeFolder, setActiveFolder] = useState<MailFolder>("inbox");
   const [selectedId, setSelectedId] = useState(emails[0].id);
   const [query, setQuery] = useState("");
@@ -219,6 +223,19 @@ export default function DashboardPage() {
                 </button>
               );
             })}
+
+            {user?.role === "admin" ? (
+              <Button
+                asChild
+                variant="outline"
+                className="col-span-2 mt-2 justify-start gap-2 lg:col-span-1"
+              >
+                <Link to="/manage-users">
+                  <Shield className="size-4" />
+                  Manage Users
+                </Link>
+              </Button>
+            ) : null}
           </nav>
         </aside>
 

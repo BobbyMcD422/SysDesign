@@ -40,6 +40,7 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
       email: String(formData.get("email") ?? ""),
       password: String(formData.get("password") ?? ""),
       role: String(formData.get("role") ?? "user"),
+      lang: String(formData.get("lang") ?? "en"),
     }
 
     try {
@@ -107,6 +108,22 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
           >
             <option value="user">User</option>
             <option value="admin">Admin</option>  
+          </select>
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="lang">
+            {t("manageUsers.card.userLanguage")}
+          </FieldLabel>
+          <select
+            id="lang"
+            name="lang"
+            defaultValue="en"
+            required
+            className="h-8 w-full rounded-lg border border-input bg-zinc-300 px-2.5 py-1 text-sm dark:bg-zinc-700"
+          >
+            <option value="en">{t("manageUsers.card.english")}</option>
+            <option value="es">{t("manageUsers.card.spanish")}</option>
           </select>
         </Field>
 

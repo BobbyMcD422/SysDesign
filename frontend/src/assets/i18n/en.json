@@ -56,13 +56,32 @@
       "title": "Add New User",
       "description": "Create a new user account and assign a role."
     },
+    "bulk": {
+      "button": "Mass Insert Users",
+      "title": "Mass Insert Users",
+      "description": "Upload a CSV or JSON file to create multiple users at once.",
+      "dropTitle": "Drop a user file here or click to browse",
+      "dropDescription": "Accepted formats: .csv or .json",
+      "formatHelp": "CSV columns or JSON keys: fname, lname, email, password, role, lang. Use lang values en or es.",
+      "noFile": "Choose a file before uploading.",
+      "defaultError": "Failed to upload users.",
+      "createdCount": "{{count}} users created.",
+      "rowError": "Row {{row}} ({{email}}): {{error}}",
+      "unknownEmail": "unknown email",
+      "close": "Close",
+      "upload": "Upload Users",
+      "uploading": "Uploading..."
+    },
     "card": {
       "email": "Email",
       "role": "Role",
       "selfDeleteDisabled": "You cannot delete your own account.",
       "fname": "First Name",
       "lname": "Last Name",
-      "tempPass": "Temporary Password"
+      "tempPass": "Temporary Password",
+      "userLanguage": "User Language",
+      "english": "English",
+      "spanish": "Espanol"
     }
   }
 }

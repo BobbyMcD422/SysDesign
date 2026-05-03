@@ -11,6 +11,7 @@ class CreateUserRequest(BaseModel):
     fname: str
     lname: str
     role: str
+    lang: str = "en"
 
 class ChangePasswordRequest(BaseModel):
     password: str
@@ -21,6 +22,15 @@ class UserResponse(BaseModel):
     fname: str
     lname: str
     role: str
+
+class BulkUserError(BaseModel):
+    row: int
+    email: str | None = None
+    error: str
+
+class BulkCreateUsersResponse(BaseModel):
+    created: list[UserResponse]
+    errors: list[BulkUserError]
 
 class CreateEmailRequest(BaseModel):
     recipients: EmailStr | Sequence[str]

@@ -1,5 +1,6 @@
 import base64
 import os.path
+from pathlib import Path
 from collections.abc import Sequence
 from email.message import EmailMessage
 
@@ -12,6 +13,14 @@ from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete token.json and authorize again.
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+EMAIL_DIR = Path(__file__).resolve().parent
+
+
+def first_existing_path(*paths: Path) -> Path | None:
+  for path in paths:
+    if path.exists():
+      return path
+  return None
 
 
 def has_required_scopes(creds):
@@ -26,8 +35,13 @@ def has_required_scopes(creds):
 def get_credentials():
   """Load or create OAuth credentials for the Gmail API."""
   creds = None
-  if os.path.exists("token.json"):
-    creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+  token_path = first_existing_path(Path("token.json"), EMAIL_DIR / "token.json")
+  credentials_path = first_existing_path(
+      Path("credentials.json"), EMAIL_DIR / "credentials.json"
+  )
+
+  if token_path:
+    creds = Credentials.from_authorized_user_file(str(token_path), SCOPES)
 
   if not creds or not creds.valid or not has_required_scopes(creds):
     if creds and creds.expired and creds.refresh_token:
@@ -37,12 +51,18 @@ def get_credentials():
         creds = None
 
     if not creds or not creds.valid or not has_required_scopes(creds):
+      if not credentials_path:
+        raise FileNotFoundError(
+            "Missing Gmail OAuth credentials file. Place credentials.json in "
+            "backend/ or backend/app/email/."
+        )
       flow = InstalledAppFlow.from_client_secrets_file(
-          "credentials.json", SCOPES
+          str(credentials_path), SCOPES
       )
       creds = flow.run_local_server(port=0)
 
-    with open("token.json", "w") as token:
+    token_write_path = token_path or EMAIL_DIR / "token.json"
+    with token_write_path.open("w", encoding="utf-8") as token:
       token.write(creds.to_json())
 
   return creds
@@ -62,6 +82,7 @@ def gmail_send_message(sender: str,
                        body: str,
                        classlist: str,
                        prof: str,
+                       html_body: str | None = None,
                        use_bcc: bool = True):
   """Create and send an email message."""
   creds = get_credentials()
@@ -69,34 +90,32 @@ def gmail_send_message(sender: str,
   if not recipient_list:
     raise ValueError("At least one recipient is required.")
 
-  try:
-    service = build("gmail", "v1", credentials=creds)
-    message = EmailMessage()
+  service = build("gmail", "v1", credentials=creds)
+  message = EmailMessage()
 
-    message.set_content(body)
+  message.set_content(body)
+  if html_body:
+    message.add_alternative(html_body, subtype="html")
 
-    if use_bcc:
-      message["To"] = f"{classlist}<{sender}>"
-      message["Bcc"] = ", ".join(recipient_list)
-    else:
-      message["To"] = ", ".join(recipient_list)
+  if use_bcc:
+    message["To"] = f"{classlist}<{sender}>"
+    message["Bcc"] = ", ".join(recipient_list)
+  else:
+    message["To"] = ", ".join(recipient_list)
 
-    message["From"] = f"{prof}<{sender}>"
-    message["Subject"] = subject
+  message["From"] = f"{prof}<{sender}>"
+  message["Subject"] = subject
 
-    # encoded message
-    encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+  # encoded message
+  encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 
-    create_message = {"raw": encoded_message}
-    # pylint: disable=E1101
-    send_message = (
-        service.users()
-        .messages()
-        .send(userId="me", body=create_message)
-        .execute()
-    )
-    print(f'Message Id: {send_message["id"]}')
-  except HttpError as error:
-    print(f"An error occurred: {error}")
-    send_message = None
+  create_message = {"raw": encoded_message}
+  # pylint: disable=E1101
+  send_message = (
+      service.users()
+      .messages()
+      .send(userId="me", body=create_message)
+      .execute()
+  )
+  print(f'Message Id: {send_message["id"]}')
   return send_message

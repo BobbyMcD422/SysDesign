@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { BulkUserUploadForm } from "@/components/BulkUserUploadForm";
 import { CreateUserForm } from "@/components/CreateUserForm";
 import { UserCard } from "@/components/UserCard";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export default function AdminPage() {
   const { t } = useTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [open, setOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   useEffect(() => {
     async function loadUsers() {
@@ -55,28 +57,52 @@ export default function AdminPage() {
           {t("manageUsers.subtitle")}
         </p>
       </div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="text-green-600 dark:text-green-500"
-          >
-            {t("manageUsers.addUser")}
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-md dark:bg-zinc-800 dark:text-white">
-          <DialogHeader>
-            <DialogTitle>{t("manageUsers.dialog.title")}</DialogTitle>
-            <DialogDescription>
-              {t("manageUsers.dialog.description")}
-            </DialogDescription>
-          </DialogHeader>
-          <CreateUserForm
-            onCreated={(newUser) => setUsers((prev) => [...prev, newUser])}
-            onClose={() => setOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <div className="flex flex-wrap gap-2">
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="text-green-600 dark:text-green-500"
+            >
+              {t("manageUsers.addUser")}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md dark:bg-zinc-800 dark:text-white">
+            <DialogHeader>
+              <DialogTitle>{t("manageUsers.dialog.title")}</DialogTitle>
+              <DialogDescription>
+                {t("manageUsers.dialog.description")}
+              </DialogDescription>
+            </DialogHeader>
+            <CreateUserForm
+              onCreated={(newUser) => setUsers((prev) => [...prev, newUser])}
+              onClose={() => setOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              {t("manageUsers.bulk.button")}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-lg dark:bg-zinc-800 dark:text-white">
+            <DialogHeader>
+              <DialogTitle>{t("manageUsers.bulk.title")}</DialogTitle>
+              <DialogDescription>
+                {t("manageUsers.bulk.description")}
+              </DialogDescription>
+            </DialogHeader>
+            <BulkUserUploadForm
+              onCreated={(newUsers) =>
+                setUsers((prev) => [...prev, ...newUsers])
+              }
+              onClose={() => setBulkOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
       {renderedUsers}
     </div>
   );

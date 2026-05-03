@@ -56,13 +56,32 @@
       "title": "Agregar usuario",
       "description": "Crea una nueva cuenta de usuario y asigna un rol."
     },
+    "bulk": {
+      "button": "Insertar usuarios en masa",
+      "title": "Insertar usuarios en masa",
+      "description": "Sube un archivo CSV o JSON para crear varios usuarios a la vez.",
+      "dropTitle": "Arrastra un archivo de usuarios aqui o haz clic para buscar",
+      "dropDescription": "Formatos aceptados: .csv o .json",
+      "formatHelp": "Columnas CSV o claves JSON: fname, lname, email, password, role, lang. Usa lang en o es.",
+      "noFile": "Elige un archivo antes de subirlo.",
+      "defaultError": "No se pudieron subir los usuarios.",
+      "createdCount": "{{count}} usuarios creados.",
+      "rowError": "Fila {{row}} ({{email}}): {{error}}",
+      "unknownEmail": "correo desconocido",
+      "close": "Cerrar",
+      "upload": "Subir usuarios",
+      "uploading": "Subiendo..."
+    },
     "card": {
       "email": "Correo electrónico",
       "role": "Rol",
       "selfDeleteDisabled": "No puedes eliminar tu propia cuenta.",
       "fname": "Nombre",
       "lname": "Apellido",
-      "tempPass": "Contraseña temporal"
+      "tempPass": "Contraseña temporal",
+      "userLanguage": "Idioma del usuario",
+      "english": "English",
+      "spanish": "Espanol"
     }
   }
 }
