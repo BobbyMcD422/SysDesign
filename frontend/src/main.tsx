@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
 import DashboardPage from "./pages/DashboardPage";
 import AdminPage from "./pages/AdminPage";
+import ProfilePage from "./pages/ProfilePage";
 
 import { AuthProvider } from "./lib/auth-context";
 import { AdminRoute, ProtectedRoute } from "./components/protected-route";
@@ -24,7 +25,10 @@ const router = createBrowserRouter([
       { index: true, element: <LoginPage /> },
       {
         element: <ProtectedRoute />,
-        children: [{ path: "dashboard", element: <DashboardPage /> }],
+        children: [
+          { path: "dashboard", element: <DashboardPage /> },
+          { path: "profile", element: <ProfilePage /> },
+        ],
       },
       {
         element: <AdminRoute/>,

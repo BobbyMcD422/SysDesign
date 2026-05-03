@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-ssr
+.git
+.gitignore
+*.log
+*.local
+.env
+.env*
+vite-dev.log
+vite-dev.err
+
+.vscode
+.idea
+.DS_Store

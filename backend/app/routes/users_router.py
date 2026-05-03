@@ -3,15 +3,18 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.helper_functions.user_functions import (
+    DuplicateEmailError,
+    PasswordValidationError,
     create_user,
+    change_password,
     delete_user_by_id,
     get_all_users,
     get_user_by_email,
     normalize_email,
 )
 from app.models import User
-from app.schemas import CreateUserRequest, UserResponse
-from auth.services.auth_service import require_admin
+from app.schemas import ChangePasswordRequest, CreateUserRequest, UserResponse
+from auth.services.auth_service import require_admin, get_current_active_user
 
 users_router = APIRouter(
     prefix="/users",
@@ -49,9 +52,14 @@ def add_user(
             lname=payload.lname,
             role=payload.role,
         )
-    except ValueError as exc:
+    except DuplicateEmailError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+    except PasswordValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
 
@@ -76,3 +84,25 @@ def remove_user(
         )
 
     return None
+
+@users_router.post("/change-pass")
+def change_pw(
+    payload: ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    try:
+        updated_user = change_password(db, current_user.id, payload.password)
+    except PasswordValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    if not updated_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    return {"ok": True}

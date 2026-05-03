@@ -4,7 +4,9 @@
     "theme": "Modo Oscuro"
   },
   "common": {
-    "loading": "Cargando..."
+    "loading": "Cargando...",
+    "showPassword": "Mostrar contraseÃ±a",
+    "hidePassword": "Ocultar contraseÃ±a"
   },
   "auth": {
     "login": {
@@ -29,6 +31,22 @@
   "dashboard": {
     "title": "Panel",
     "subtitle": "Has iniciado sesión."
+  },
+  "profile": {
+    "userId": "ID de usuario",
+    "email": "Correo electrÃ³nico",
+    "role": "Rol",
+    "changePassword": {
+      "title": "Cambiar contraseÃ±a",
+      "description": "Usa al menos 6 caracteres con mayÃºsculas, minÃºsculas y un nÃºmero.",
+      "newPassword": "Nueva contraseÃ±a",
+      "confirmPassword": "Confirmar contraseÃ±a",
+      "passwordMismatch": "Las contraseÃ±as no coinciden",
+      "success": "ContraseÃ±a actualizada correctamente",
+      "defaultError": "No se pudo cambiar la contraseÃ±a",
+      "submit": "Actualizar contraseÃ±a",
+      "submitting": "Actualizando..."
+    }
   },
   "manageUsers": {
     "title": "Gestionar usuarios",

@@ -1,3 +1,5 @@
+import { useState } from "react"
+import { Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,6 +23,8 @@ export function LoginForm({
   ...props
 }: LoginFormProps) {
   const { t } = useTranslation()
+  const [showPassword, setShowPassword] = useState(false)
+
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
@@ -51,14 +55,39 @@ export function LoginForm({
               {t("auth.login.forgotPassword")}
             </a>
           </div>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$"
-            required
-            className="bg-background"
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$"
+              required
+              className="bg-background pr-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setShowPassword((current) => !current)}
+              title={
+                showPassword
+                  ? t("common.hidePassword")
+                  : t("common.showPassword")
+              }
+              aria-label={
+                showPassword
+                  ? t("common.hidePassword")
+                  : t("common.showPassword")
+              }
+              className="absolute right-1 top-1/2 -translate-y-1/2"
+            >
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </Button>
+          </div>
         </Field>
         {error ? (
           <Field>

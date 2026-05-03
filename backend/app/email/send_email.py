@@ -100,12 +100,3 @@ def gmail_send_message(sender: str,
     print(f"An error occurred: {error}")
     send_message = None
   return send_message
-
-if __name__ == "__main__":
-  gmail_send_message("meta.api.testing.group5@gmail.com",
-                        "bobbymcdonald422@gmail.com",
-                        "test", 
-                        "lol",
-                        "test1",
-                        "test2",
-                        )

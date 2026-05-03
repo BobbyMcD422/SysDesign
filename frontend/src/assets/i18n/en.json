@@ -4,7 +4,9 @@
     "theme": "Dark Mode"
   },
   "common": {
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "auth": {
     "login": {
@@ -29,6 +31,22 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "You are logged in."
+  },
+  "profile": {
+    "userId": "User ID",
+    "email": "Email",
+    "role": "Role",
+    "changePassword": {
+      "title": "Change Password",
+      "description": "Use at least 6 characters with uppercase, lowercase, and a number.",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "passwordMismatch": "Passwords do not match",
+      "success": "Password updated successfully",
+      "defaultError": "Failed to change password",
+      "submit": "Update Password",
+      "submitting": "Updating..."
+    }
   },
   "manageUsers": {
     "title": "Manage Users",

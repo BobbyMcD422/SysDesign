@@ -38,7 +38,7 @@ export function DropdownMenuIcons() {
 
       <DropdownMenuContent align="end" className="bg-zinc-100 text-black dark:bg-zinc-800 dark:text-white">
         <DropdownMenuItem
-          //onClick={}
+          onClick={() => navigate("/profile")}
         >
           <UserIcon />
           {t("navigation.profile")}
