@@ -1,24 +1,21 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "./lib/i18n";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
+// Pages
 import RootLayout from "./layouts/RootLayout";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
-import { AuthProvider } from "./lib/auth-context";
-import { ProtectedRoute } from "./components/protected-route";
+import DashboardPage from "./pages/DashboardPage";
+import AdminPage from "./pages/AdminPage";
+import ProfilePage from "./pages/ProfilePage";
 
-function DashboardPage() {
-  return (
-    <div className="p-6 md:p-10">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-        You are logged in.
-      </p>
-    </div>
-  );
-}
+import { AuthProvider } from "./lib/auth-context";
+import { AdminRoute, ProtectedRoute } from "./components/protected-route";
+
+
 
 const router = createBrowserRouter([
   {
@@ -28,7 +25,14 @@ const router = createBrowserRouter([
       { index: true, element: <LoginPage /> },
       {
         element: <ProtectedRoute />,
-        children: [{ path: "dashboard", element: <DashboardPage /> }],
+        children: [
+          { path: "dashboard", element: <DashboardPage /> },
+          { path: "profile", element: <ProfilePage /> },
+        ],
+      },
+      {
+        element: <AdminRoute/>,
+        children: [{ path: "manage-users", element: <AdminPage /> }],
       },
       { path: "*", element: <NotFound /> },
     ],

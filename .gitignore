@@ -35,3 +35,6 @@ __pycache__/
 default_users.json
 
 /temp/
+
+token.json
+credentials.json

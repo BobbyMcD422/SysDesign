@@ -1,0 +1,182 @@
+# Academic Admin
+
+Academic Admin is a system design prototype for an accessible academic communication platform. It includes a React frontend, FastAPI backend, PostgreSQL database, role-based user management, authentication, profile/password management, and email-sending support.
+
+## Prerequisites
+
+Install these before running the project:
+
+- Docker Desktop
+- Git
+
+For local development without Docker, also install:
+
+- Node.js 22 or newer
+- Python 3.12
+
+## Environment Setup
+
+The `.env` file is not committed to Git, so each developer needs to create one in the project root.
+
+Create a file named `.env` next to `docker-compose.yml`:
+
+```env
+DB_OWNER=postgres
+DB_PASS=password
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=academic_admin
+AUTH_KEY=replace-with-a-long-random-secret
+```
+
+For this project, `DB_HOST=db` is correct when running with Docker Compose because `db` is the Compose service name.
+
+If you run the backend outside Docker, use a local database URL instead:
+
+```env
+DATABASE_URL=postgresql+psycopg://postgres:password@localhost:5434/academic_admin
+AUTH_KEY=replace-with-a-long-random-secret
+```
+
+The frontend defaults to `http://localhost:8000` for the API. If needed, create `frontend/.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+## Running With Docker
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:8000`
+- API docs: `http://localhost:8000/docs`
+- PostgreSQL: `localhost:5434`
+
+To stop the app:
+
+```bash
+docker compose down
+```
+
+To stop the app and remove the database volume:
+
+```bash
+docker compose down -v
+```
+
+Only use `-v` when you are okay deleting local database data.
+
+## Local Development
+
+### Backend
+
+From the `backend` folder:
+
+```bash
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+The backend runs at:
+
+```text
+http://localhost:8000
+```
+
+### Frontend
+
+From the `frontend` folder:
+
+```bash
+npm install
+npm run dev
+```
+
+The frontend runs at:
+
+```text
+http://localhost:5173
+```
+
+## Gmail Email Setup
+
+Email sending uses the Gmail API. The OAuth files are local-only and should not be committed.
+
+Expected local files:
+- `token.json`
+
+Keep these out of Git. `token.json` is generated after OAuth login.
+
+If these files are missing, the email-sending route may fail or prompt for OAuth setup depending on the runtime environment.
+
+## Useful Commands
+
+Run frontend type checking:
+
+```bash
+cd frontend
+npx tsc -b
+```
+
+Run frontend linting:
+
+```bash
+cd frontend
+npm run lint
+```
+
+Run backend syntax checks:
+
+```bash
+cd backend
+python -m py_compile app\main.py app\routes\users_router.py app\routes\mail_router.py auth\services\auth_service.py
+```
+
+View Docker logs:
+
+```bash
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f db
+```
+
+## Project Structure
+
+```text
+backend/
+  app/
+    routes/
+    helper_functions/
+    email/
+    models.py
+    schemas.py
+    database.py
+  auth/
+  alembic/
+frontend/
+  src/
+    components/
+    pages/
+    lib/
+docker-compose.yml
+```
+
+## Notes for Sharing
+
+When sharing the project, send the source code and these setup instructions. Do not send `.env`, `token.json`, `credentials.json`, virtual environments, `node_modules`, or built `dist` output.
+
+The recipient should create their own `.env` file, then run:
+
+```bash
+docker compose up --build
+```

@@ -1,6 +1,5 @@
 import {
   LogOutIcon,
-  SettingsIcon,
   UserIcon,
 } from "lucide-react"
 import { useNavigate } from "react-router"
@@ -10,14 +9,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/lib/auth-context"
+import { useTranslation } from "react-i18next"
 
 export function DropdownMenuIcons() {
   const navigate = useNavigate()
   const { user, logoutUser } = useAuth()
+  const { t } = useTranslation()
 
   async function handleLogout() {
     await logoutUser()
@@ -37,22 +37,19 @@ export function DropdownMenuIcons() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="bg-zinc-100 text-black dark:bg-zinc-800 dark:text-white">
-        <DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => navigate("/profile")}
+        >
           <UserIcon />
-          Profile
+          {t("navigation.profile")}
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <SettingsIcon />
-          Settings
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
           onClick={() => void handleLogout()}
           className="text-red-500"
         >
           <LogOutIcon />
-          Log out
+          {t("navigation.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

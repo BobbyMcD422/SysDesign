@@ -1,0 +1,68 @@
+{
+  "app": {
+    "name": "Academic Admin",
+    "theme": "Dark Mode"
+  },
+  "common": {
+    "loading": "Loading...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "auth": {
+    "login": {
+      "title": "Login to your account",
+      "subtitle": "Enter your email below to login to your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@example.com",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Login",
+      "signupPrompt": "Don't have an account?",
+      "signupLink": "Sign up",
+      "defaultError": "Login failed"
+    }
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "You are logged in."
+  },
+  "profile": {
+    "userId": "User ID",
+    "email": "Email",
+    "role": "Role",
+    "changePassword": {
+      "title": "Change Password",
+      "description": "Use at least 6 characters with uppercase, lowercase, and a number.",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "passwordMismatch": "Passwords do not match",
+      "success": "Password updated successfully",
+      "defaultError": "Failed to change password",
+      "submit": "Update Password",
+      "submitting": "Updating..."
+    }
+  },
+  "manageUsers": {
+    "title": "Manage Users",
+    "subtitle": "Create, review, and remove user accounts.",
+    "addUser": "Add New User",
+    "dialog": {
+      "title": "Add New User",
+      "description": "Create a new user account and assign a role."
+    },
+    "card": {
+      "email": "Email",
+      "role": "Role",
+      "selfDeleteDisabled": "You cannot delete your own account.",
+      "fname": "First Name",
+      "lname": "Last Name",
+      "tempPass": "Temporary Password"
+    }
+  }
+}

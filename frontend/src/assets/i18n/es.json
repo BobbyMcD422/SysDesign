@@ -1,0 +1,68 @@
+{
+  "app": {
+    "name": "Administración Académica",
+    "theme": "Modo Oscuro"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "showPassword": "Mostrar contraseÃ±a",
+    "hidePassword": "Ocultar contraseÃ±a"
+  },
+  "auth": {
+    "login": {
+      "title": "Inicia sesión en tu cuenta",
+      "subtitle": "Ingresa tu correo electrónico para iniciar sesión en tu cuenta",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "correo@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar sesión",
+      "signupPrompt": "¿No tienes una cuenta?",
+      "signupLink": "Regístrate",
+      "defaultError": "Error al iniciar sesión"
+    }
+  },
+  "navigation": {
+    "dashboard": "Panel",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "subtitle": "Has iniciado sesión."
+  },
+  "profile": {
+    "userId": "ID de usuario",
+    "email": "Correo electrÃ³nico",
+    "role": "Rol",
+    "changePassword": {
+      "title": "Cambiar contraseÃ±a",
+      "description": "Usa al menos 6 caracteres con mayÃºsculas, minÃºsculas y un nÃºmero.",
+      "newPassword": "Nueva contraseÃ±a",
+      "confirmPassword": "Confirmar contraseÃ±a",
+      "passwordMismatch": "Las contraseÃ±as no coinciden",
+      "success": "ContraseÃ±a actualizada correctamente",
+      "defaultError": "No se pudo cambiar la contraseÃ±a",
+      "submit": "Actualizar contraseÃ±a",
+      "submitting": "Actualizando..."
+    }
+  },
+  "manageUsers": {
+    "title": "Gestionar usuarios",
+    "subtitle": "Crea, revisa y elimina cuentas de usuario.",
+    "addUser": "Agregar usuario",
+    "dialog": {
+      "title": "Agregar usuario",
+      "description": "Crea una nueva cuenta de usuario y asigna un rol."
+    },
+    "card": {
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "selfDeleteDisabled": "No puedes eliminar tu propia cuenta.",
+      "fname": "Nombre",
+      "lname": "Apellido",
+      "tempPass": "Contraseña temporal"
+    }
+  }
+}
