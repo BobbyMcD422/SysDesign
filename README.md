@@ -44,6 +44,39 @@ The frontend defaults to `http://localhost:8000` for the API. If needed, create 
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
+## Seed User Setup
+
+The default user seed file is not committed to Git because it may contain default account credentials.
+
+Before running migrations, create this file:
+
+```text
+backend/alembic/seeds/default_users.json
+```
+
+Use this shape:
+
+```json
+[
+  {
+    "email": "admin@example.com",
+    "password": "Admin123",
+    "fname": "Admin",
+    "lname": "User",
+    "role": "admin"
+  }
+]
+```
+
+Passwords must match the application password rules:
+
+- at least 6 characters
+- at least one uppercase letter
+- at least one lowercase letter
+- at least one number
+
+Replace the example values before sharing or presenting the project.
+
 ## Running With Docker
 
 From the project root:
