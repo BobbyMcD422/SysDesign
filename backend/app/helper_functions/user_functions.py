@@ -1,4 +1,5 @@
-import json
+import json, os
+from dotenv import load_dotenv
 from pathlib import Path
 
 from sqlalchemy.orm import Session
@@ -7,13 +8,15 @@ from app.models import User
 from app.email.send_email import gmail_send_message
 import bcrypt
 
+load_dotenv()
+
 DEFAULT_MESSAGE_PATH = (
     Path(__file__).resolve().parents[1]
     / "email"
     / "messages"
     / "default-messages.json"
 )
-SYSTEM_EMAIL = "meta.api.testing.group5@gmail.com"
+SYSTEM_EMAIL = os.getenv('EMAIL')
 
 
 class DuplicateEmailError(ValueError):
