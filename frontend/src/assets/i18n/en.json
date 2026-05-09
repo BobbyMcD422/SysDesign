@@ -30,7 +30,75 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "You are logged in."
+    "subtitle": "You are logged in.",
+    "mail": {
+      "title": "Inbox",
+      "counts": "{{unreadCount}} unread, {{readCount}} read",
+      "folders": {
+        "inbox": "Inbox",
+        "starred": "Starred",
+        "sent": "Sent",
+        "archive": "Archive"
+      },
+      "actions": {
+        "compose": "Compose",
+        "composeMessage": "Compose message",
+        "refresh": "Refresh",
+        "reply": "Reply",
+        "archive": "Archive",
+        "cancel": "Cancel",
+        "sendEmail": "Send email",
+        "markRead": "Mark as read",
+        "markUnread": "Mark as unread",
+        "moveToTrash": "Move to trash",
+        "removeStar": "Remove star",
+        "starMessage": "Star message"
+      },
+      "admin": {
+        "manageClasses": "Manage Classes"
+      },
+      "search": {
+        "placeholder": "Search mail"
+      },
+      "labels": {
+        "new": "New"
+      },
+      "states": {
+        "loadingMessages": "Loading Gmail messages",
+        "noMessages": "No messages found.",
+        "selectMessage": "Select a Gmail message to preview it."
+      },
+      "fallbacks": {
+        "unknownSender": "Unknown sender",
+        "noEmailAddress": "No email address",
+        "noSubject": "(No subject)",
+        "noPreview": "No preview available.",
+        "noBody": "No message body available."
+      },
+      "compose": {
+        "title": "Compose email",
+        "description": "Send mail through the connected Gmail API account.",
+        "additionalRecipients": "Additional recipients",
+        "recipientsPlaceholder": "student@example.edu, advisor@example.edu",
+        "classList": "Class list",
+        "noClasses": "No classes available",
+        "selectClass": "Select class",
+        "subject": "Subject",
+        "subjectPlaceholder": "Subject",
+        "message": "Message",
+        "messagePlaceholder": "Write your message"
+      },
+      "validation": {
+        "recipientOrClass": "Add at least one recipient or choose a class.",
+        "classList": "Choose a class list."
+      },
+      "errors": {
+        "loadMessages": "Failed to load messages",
+        "loadClasses": "Failed to load classes",
+        "updateMessage": "Failed to update message.",
+        "sendEmail": "Email was not sent."
+      }
+    }
   },
   "profile": {
     "userId": "User ID",

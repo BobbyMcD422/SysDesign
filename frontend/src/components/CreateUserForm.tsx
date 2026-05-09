@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Eye, EyeOff } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -25,6 +26,7 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
   const { t } = useTranslation();
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -89,12 +91,39 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
 
         <Field>
           <FieldLabel htmlFor="password">{t("manageUsers.card.tempPass")}</FieldLabel>
-          <Input 
-            id="password" 
-            name="password" 
-            type="password"
-            pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$" 
-            required />
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$"
+              required
+              className="pr-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setShowPassword((current) => !current)}
+              title={
+                showPassword
+                  ? t("common.hidePassword")
+                  : t("common.showPassword")
+              }
+              aria-label={
+                showPassword
+                  ? t("common.hidePassword")
+                  : t("common.showPassword")
+              }
+              className="absolute right-1 top-1/2 -translate-y-1/2"
+            >
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </Button>
+          </div>
         </Field>
 
         <Field>

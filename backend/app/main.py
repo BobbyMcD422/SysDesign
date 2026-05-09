@@ -2,6 +2,7 @@ import re, bcrypt
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from auth.routes.auth_router import auth_router
+from app.routes.academic_router import academic_router
 from app.routes.users_router import users_router
 from app.routes.mail_router import email_router
 
@@ -20,6 +21,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api")
+app.include_router(academic_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(email_router, prefix="/api")
 

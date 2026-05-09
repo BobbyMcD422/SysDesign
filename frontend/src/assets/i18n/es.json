@@ -30,7 +30,75 @@
   },
   "dashboard": {
     "title": "Panel",
-    "subtitle": "Has iniciado sesión."
+    "subtitle": "Has iniciado sesión.",
+    "mail": {
+      "title": "Bandeja de entrada",
+      "counts": "{{unreadCount}} sin leer, {{readCount}} leídos",
+      "folders": {
+        "inbox": "Entrada",
+        "starred": "Destacados",
+        "sent": "Enviados",
+        "archive": "Archivo"
+      },
+      "actions": {
+        "compose": "Redactar",
+        "composeMessage": "Redactar mensaje",
+        "refresh": "Actualizar",
+        "reply": "Responder",
+        "archive": "Archivar",
+        "cancel": "Cancelar",
+        "sendEmail": "Enviar correo",
+        "markRead": "Marcar como leído",
+        "markUnread": "Marcar como no leído",
+        "moveToTrash": "Mover a la papelera",
+        "removeStar": "Quitar estrella",
+        "starMessage": "Destacar mensaje"
+      },
+      "admin": {
+        "manageClasses": "Gestionar clases"
+      },
+      "search": {
+        "placeholder": "Buscar correo"
+      },
+      "labels": {
+        "new": "Nuevo"
+      },
+      "states": {
+        "loadingMessages": "Cargando mensajes de Gmail",
+        "noMessages": "No se encontraron mensajes.",
+        "selectMessage": "Selecciona un mensaje de Gmail para previsualizarlo."
+      },
+      "fallbacks": {
+        "unknownSender": "Remitente desconocido",
+        "noEmailAddress": "Sin dirección de correo",
+        "noSubject": "(Sin asunto)",
+        "noPreview": "No hay vista previa disponible.",
+        "noBody": "No hay cuerpo del mensaje disponible."
+      },
+      "compose": {
+        "title": "Redactar correo",
+        "description": "Envía correo mediante la cuenta conectada de la API de Gmail.",
+        "additionalRecipients": "Destinatarios adicionales",
+        "recipientsPlaceholder": "estudiante@ejemplo.edu, asesor@ejemplo.edu",
+        "classList": "Lista de clase",
+        "noClasses": "No hay clases disponibles",
+        "selectClass": "Seleccionar clase",
+        "subject": "Asunto",
+        "subjectPlaceholder": "Asunto",
+        "message": "Mensaje",
+        "messagePlaceholder": "Escribe tu mensaje"
+      },
+      "validation": {
+        "recipientOrClass": "Agrega al menos un destinatario o elige una clase.",
+        "classList": "Elige una lista de clase."
+      },
+      "errors": {
+        "loadMessages": "No se pudieron cargar los mensajes",
+        "loadClasses": "No se pudieron cargar las clases",
+        "updateMessage": "No se pudo actualizar el mensaje.",
+        "sendEmail": "No se envió el correo."
+      }
+    }
   },
   "profile": {
     "userId": "ID de usuario",
