@@ -45,7 +45,7 @@ export function AlertDialogDestructive({
 
     if (!res.ok) {
       const errorData = await res.json().catch(() => null)
-      throw new Error(errorData?.detail || "Failed to delete user")
+      throw new Error(errorData?.detail || "Failed to delete instructor")
     }
 
     onDeleted(user.id)
@@ -58,7 +58,7 @@ export function AlertDialogDestructive({
           variant="destructive"
           className="text-red-500"
           disabled={disabled}
-          title={disabled ? "You cannot delete your own account" : "Delete user"}
+          title={disabled ? "You cannot delete your own account" : "Delete instructor"}
         >
           <Trash size="15px"/>
         </Button>
@@ -68,7 +68,7 @@ export function AlertDialogDestructive({
           <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
             <Trash2Icon />
           </AlertDialogMedia>
-          <AlertDialogTitle>Delete User?</AlertDialogTitle>
+          <AlertDialogTitle>Delete Instructor?</AlertDialogTitle>
           <AlertDialogDescription>
             This will permanently delete {user.fname} {user.lname}.
           </AlertDialogDescription>

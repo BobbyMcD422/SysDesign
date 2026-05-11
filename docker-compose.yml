@@ -23,6 +23,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://${DB_OWNER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}
       AUTH_KEY: ${AUTH_KEY}
+      EMAIL: ${EMAIL}
     volumes:
       - ./backend:/app
 

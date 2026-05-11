@@ -1,194 +1,376 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import {
   Archive,
-  Bell,
-  Clock,
+  AlertCircle,
+  BookOpen,
   Inbox,
+  Loader2,
   Mail,
   MailOpen,
-  MoreHorizontal,
-  Paperclip,
   PenLine,
+  RefreshCcw,
   Reply,
   Search,
   Send,
+  Shield,
   Star,
   Trash2,
+  Users,
 } from "lucide-react";
+import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  getClasses,
+  getGmailMessages,
+  replyToEmail,
+  sendEmail,
+  updateGmailMessage,
+} from "@/lib/api";
+import type { ClassRecord, GmailMessage } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
 type MailFolder = "inbox" | "starred" | "sent" | "archive";
 
-type Email = {
-  id: number;
-  folder: MailFolder;
-  sender: string;
-  email: string;
+type ComposeForm = {
+  recipients: string;
   subject: string;
-  preview: string;
   body: string;
-  time: string;
-  unread: boolean;
-  starred: boolean;
-  hasAttachment?: boolean;
-  label: string;
+  classId: string;
+  classlist: string;
+  replyToMessageId: string | null;
 };
 
 const folders: Array<{
   id: MailFolder;
-  label: string;
   icon: typeof Inbox;
 }> = [
-  { id: "inbox", label: "Inbox", icon: Inbox },
-  { id: "starred", label: "Starred", icon: Star },
-  { id: "sent", label: "Sent", icon: Send },
-  { id: "archive", label: "Archive", icon: Archive },
+  { id: "inbox", icon: Inbox },
+  { id: "starred", icon: Star },
+  { id: "sent", icon: Send },
+  { id: "archive", icon: Archive },
 ];
 
-const emails: Email[] = [
-  {
-    id: 1,
-    folder: "inbox",
-    sender: "Maya Thompson",
-    email: "maya.thompson@northline.edu",
-    subject: "Updated advising schedule",
-    preview: "The revised advising blocks are ready for review before Friday.",
-    body: "The revised advising blocks are ready for review before Friday. I moved the two overloaded morning windows into the afternoon and left room for walk-ins during the registration rush.",
-    time: "9:42 AM",
-    unread: true,
-    starred: true,
-    hasAttachment: true,
-    label: "Advising",
-  },
-  {
-    id: 2,
-    folder: "inbox",
-    sender: "Registrar Office",
-    email: "registrar@northline.edu",
-    subject: "Enrollment exception requests",
-    preview: "Three exception requests need department approval today.",
-    body: "Three exception requests need department approval today. The students have uploaded the required documentation and are waiting on final review.",
-    time: "8:16 AM",
-    unread: true,
-    starred: false,
-    label: "Urgent",
-  },
-  {
-    id: 3,
-    folder: "inbox",
-    sender: "Jon Bell",
-    email: "jbell@northline.edu",
-    subject: "Guest speaker confirmation",
-    preview: "Dr. Carver confirmed the Wednesday lecture and sent the abstract.",
-    body: "Dr. Carver confirmed the Wednesday lecture and sent the abstract. I added the event details to the shared calendar and drafted the announcement for students.",
-    time: "Yesterday",
-    unread: false,
-    starred: false,
-    hasAttachment: true,
-    label: "Events",
-  },
-  {
-    id: 4,
-    folder: "sent",
-    sender: "You",
-    email: "admin@northline.edu",
-    subject: "Re: Budget planning notes",
-    preview: "I added the projected tutoring hours and revised the equipment line.",
-    body: "I added the projected tutoring hours and revised the equipment line. The new total should line up with the revised department cap.",
-    time: "Mon",
-    unread: false,
-    starred: false,
-    label: "Finance",
-  },
-  {
-    id: 5,
-    folder: "archive",
-    sender: "Campus IT",
-    email: "it@northline.edu",
-    subject: "Maintenance window completed",
-    preview: "The planned database maintenance completed without incident.",
-    body: "The planned database maintenance completed without incident. All services are back online, and monitoring has not detected any delayed jobs.",
-    time: "Apr 28",
-    unread: false,
-    starred: false,
-    label: "Systems",
-  },
-  {
-    id: 6,
-    folder: "inbox",
-    sender: "Priya Shah",
-    email: "priya.shah@northline.edu",
-    subject: "Final review for student research list",
-    preview: "Can you confirm the five students marked for presentation slots?",
-    body: "Can you confirm the five students marked for presentation slots? I want to send the final program to printing by the end of the day.",
-    time: "Apr 27",
-    unread: false,
-    starred: true,
-    label: "Research",
-  },
-];
+const emptyComposeForm: ComposeForm = {
+  recipients: "",
+  subject: "",
+  body: "",
+  classId: "",
+  classlist: "",
+  replyToMessageId: null,
+};
+
+function getSenderName(message: GmailMessage, fallback: string) {
+  const from = message.from_email ?? fallback;
+  const match = from.match(/^"?([^"<]+)"?\s*</);
+  return match?.[1]?.trim() || from;
+}
+
+function getSenderEmail(message: GmailMessage, fallback: string) {
+  const from = message.from_email ?? "";
+  const match = from.match(/<([^>]+)>/);
+  return match?.[1]?.trim() || from || fallback;
+}
+
+function getMessageTime(message: GmailMessage, language: string) {
+  const timestamp = message.internal_date
+    ? Number(message.internal_date)
+    : Date.parse(message.date ?? "");
+
+  if (!Number.isFinite(timestamp)) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(language, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(timestamp));
+}
+
+function getRecipients(value: string) {
+  return value
+    .split(/[,\n;]/)
+    .map((recipient) => recipient.trim())
+    .filter(Boolean);
+}
+
+function getClassLabel(classRecord: ClassRecord) {
+  return `${classRecord.name} (${classRecord.term})`;
+}
 
 export default function DashboardPage() {
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [activeFolder, setActiveFolder] = useState<MailFolder>("inbox");
-  const [selectedId, setSelectedId] = useState(emails[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [messages, setMessages] = useState<GmailMessage[]>([]);
+  const [classes, setClasses] = useState<ClassRecord[]>([]);
+  const [classesError, setClassesError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeForm, setComposeForm] = useState<ComposeForm>(emptyComposeForm);
+  const [sendStatus, setSendStatus] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [actionStatus, setActionStatus] = useState<string | null>(null);
+  const [pendingMessageAction, setPendingMessageAction] = useState<string | null>(
+    null,
+  );
 
-  const filteredEmails = useMemo(() => {
+  const loadMessages = async () => {
+    setIsLoading(true);
+    setLoadError(null);
+
+    try {
+      const response = await getGmailMessages({
+        folder: activeFolder,
+        query,
+        includeBody: true,
+      });
+      setMessages(response.messages);
+      setSelectedId((currentId) => {
+        if (response.messages.some((message) => message.id === currentId)) {
+          return currentId;
+        }
+        return response.messages[0]?.id ?? null;
+      });
+    } catch (error) {
+      setLoadError(
+        error instanceof Error
+          ? error.message
+          : t("dashboard.mail.errors.loadMessages"),
+      );
+      setMessages([]);
+      setSelectedId(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadMessages();
+  }, [activeFolder]);
+
+  useEffect(() => {
+    async function loadClasses() {
+      setClassesError(null);
+
+      try {
+        const classRecords = await getClasses();
+        setClasses(classRecords);
+        setComposeForm((form) => ({
+          ...form,
+          classId: form.classId || (classRecords[0]?.class_id.toString() ?? ""),
+          classlist:
+            form.classlist || (classRecords[0] ? getClassLabel(classRecords[0]) : ""),
+        }));
+      } catch (error) {
+        setClassesError(
+          error instanceof Error
+            ? error.message
+            : t("dashboard.mail.errors.loadClasses"),
+        );
+      }
+    }
+
+    void loadClasses();
+  }, []);
+
+  const filteredMessages = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return messages;
 
-    return emails.filter((email) => {
-      const matchesFolder =
-        activeFolder === "starred"
-          ? email.starred
-          : email.folder === activeFolder;
+    return messages.filter((message) =>
+      [
+        getSenderName(message, t("dashboard.mail.fallbacks.unknownSender")),
+        getSenderEmail(message, t("dashboard.mail.fallbacks.noEmailAddress")),
+        message.subject,
+        message.snippet,
+        message.body,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery),
+    );
+  }, [messages, query, t]);
 
-      const matchesQuery =
-        normalizedQuery.length === 0 ||
-        [email.sender, email.email, email.subject, email.preview, email.label]
-          .join(" ")
-          .toLowerCase()
-          .includes(normalizedQuery);
+  const selectedMessage =
+    filteredMessages.find((message) => message.id === selectedId) ??
+    filteredMessages[0] ??
+    null;
 
-      return matchesFolder && matchesQuery;
-    });
-  }, [activeFolder, query]);
-
-  const selectedEmail =
-    filteredEmails.find((email) => email.id === selectedId) ??
-    filteredEmails[0] ??
-    emails[0];
-
-  const unreadCount = emails.filter(
-    (email) => email.folder === "inbox" && email.unread,
+  const unreadCount = messages.filter((message) =>
+    message.label_ids.includes("UNREAD"),
   ).length;
+  const readCount = messages.length - unreadCount;
+
+  function updateMessageLabels(
+    messageId: string,
+    addLabels: string[] = [],
+    removeLabels: string[] = [],
+  ) {
+    setMessages((currentMessages) =>
+      currentMessages.map((message) => {
+        if (message.id !== messageId) return message;
+
+        const nextLabels = new Set(message.label_ids);
+        removeLabels.forEach((label) => nextLabels.delete(label));
+        addLabels.forEach((label) => nextLabels.add(label));
+
+        return {
+          ...message,
+          label_ids: Array.from(nextLabels),
+        };
+      }),
+    );
+  }
+
+  function removeMessage(messageId: string) {
+    setMessages((currentMessages) => {
+      const nextMessages = currentMessages.filter(
+        (message) => message.id !== messageId,
+      );
+      setSelectedId((currentId) => {
+        if (currentId !== messageId) return currentId;
+        return nextMessages[0]?.id ?? null;
+      });
+      return nextMessages;
+    });
+  }
+
+  async function handleMessageAction(
+    message: GmailMessage,
+    action: "read" | "unread" | "star" | "unstar" | "archive" | "trash",
+  ) {
+    const pendingKey = `${message.id}-${action}`;
+    setActionStatus(null);
+    setPendingMessageAction(pendingKey);
+
+    try {
+      await updateGmailMessage(message.id, action);
+
+      if (action === "read") {
+        updateMessageLabels(message.id, [], ["UNREAD"]);
+      } else if (action === "unread") {
+        updateMessageLabels(message.id, ["UNREAD"]);
+      } else if (action === "star") {
+        updateMessageLabels(message.id, ["STARRED"]);
+      } else if (action === "unstar") {
+        if (activeFolder === "starred") {
+          removeMessage(message.id);
+        } else {
+          updateMessageLabels(message.id, [], ["STARRED"]);
+        }
+      } else {
+        removeMessage(message.id);
+      }
+    } catch (error) {
+      setActionStatus(
+        error instanceof Error
+          ? error.message
+          : t("dashboard.mail.errors.updateMessage"),
+      );
+    } finally {
+      setPendingMessageAction(null);
+    }
+  }
+
+  async function handleSelectMessage(message: GmailMessage) {
+    setSelectedId(message.id);
+    if (message.label_ids.includes("UNREAD")) {
+      await handleMessageAction(message, "read");
+    }
+  }
+
+  const handleComposeSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSendStatus(null);
+
+    const isReply = Boolean(composeForm.replyToMessageId);
+    const recipients = getRecipients(composeForm.recipients);
+
+    if (!isReply && recipients.length === 0 && !composeForm.classId) {
+      setSendStatus(t("dashboard.mail.validation.recipientOrClass"));
+      return;
+    }
+    if (!isReply && !composeForm.classId) {
+      setSendStatus(t("dashboard.mail.validation.classList"));
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      if (composeForm.replyToMessageId) {
+        await replyToEmail(composeForm.replyToMessageId, {
+          body: composeForm.body,
+        });
+      } else {
+        await sendEmail({
+          recipients,
+          subject: composeForm.subject,
+          body: composeForm.body,
+          class_id: Number(composeForm.classId),
+          classlist: composeForm.classlist,
+          prof: user ? `${user.fname} ${user.lname}` : null,
+        });
+      }
+      setComposeForm(emptyComposeForm);
+      setComposeOpen(false);
+      await loadMessages();
+    } catch (error) {
+      setSendStatus(
+        error instanceof Error ? error.message : t("dashboard.mail.errors.sendEmail"),
+      );
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <div className="min-h-[calc(100vh-65px)] bg-zinc-50 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
       <div className="grid min-h-[calc(100vh-65px)] grid-cols-1 lg:grid-cols-[220px_minmax(300px,420px)_1fr]">
         <aside className="border-b border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900 lg:border-b-0 lg:border-r">
-          <div className="flex items-center justify-between lg:block">
+          <div className="flex items-center justify-between gap-3 lg:block">
             <div>
-              <h1 className="text-xl font-semibold leading-tight">Inbox</h1>
+              <h1 className="text-xl font-semibold leading-tight">
+                {t("dashboard.mail.title")}
+              </h1>
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                {unreadCount} unread messages
+                {t("dashboard.mail.counts", { unreadCount, readCount })}
               </p>
             </div>
-            <Button className="gap-2" title="Compose message">
+            <Button
+              className="gap-2"
+              title={t("dashboard.mail.actions.composeMessage")}
+              onClick={() => {
+                setComposeForm(emptyComposeForm);
+                setSendStatus(null);
+                setComposeOpen(true);
+              }}
+            >
               <PenLine className="size-4" />
-              Compose
+              {t("dashboard.mail.actions.compose")}
             </Button>
           </div>
 
           <nav className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-1">
             {folders.map((folder) => {
               const Icon = folder.icon;
-              const count =
-                folder.id === "starred"
-                  ? emails.filter((email) => email.starred).length
-                  : emails.filter((email) => email.folder === folder.id).length;
 
               return (
                 <button
@@ -196,13 +378,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => {
                     setActiveFolder(folder.id);
-                    setSelectedId(
-                      emails.find((email) =>
-                        folder.id === "starred"
-                          ? email.starred
-                          : email.folder === folder.id,
-                      )?.id ?? emails[0].id,
-                    );
+                    setSelectedId(null);
                   }}
                   className={cn(
                     "flex h-9 items-center justify-between rounded-lg px-3 text-sm font-medium transition-colors",
@@ -213,169 +389,472 @@ export default function DashboardPage() {
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <Icon className="size-4 shrink-0" />
-                    <span className="truncate">{folder.label}</span>
+                    <span className="truncate">
+                      {t(`dashboard.mail.folders.${folder.id}`)}
+                    </span>
                   </span>
-                  <span className="ml-2 text-xs opacity-75">{count}</span>
                 </button>
               );
             })}
+
+            {user?.role === "admin" ? (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="col-span-2 mt-2 justify-start gap-2 lg:col-span-1"
+                >
+                  <Link to="/manage-users">
+                    <Shield className="size-4" />
+                    {t("manageUsers.title")}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="col-span-2 justify-start gap-2 lg:col-span-1"
+                >
+                  <Link to="/manage-classes">
+                    <BookOpen className="size-4" />
+                    {t("manageClasses.title")}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="col-span-2 justify-start gap-2 lg:col-span-1"
+                >
+                  <Link to="/manage-students">
+                    <Users className="size-4" />
+                    {t("manageStudents.title")}
+                  </Link>
+                </Button>
+              </>
+            ) : null}
           </nav>
         </aside>
 
         <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:border-b-0 lg:border-r">
-          <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+          <div className="space-y-3 border-b border-zinc-200 p-4 dark:border-zinc-800">
             <div className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search mail"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") void loadMessages();
+                }}
+                placeholder={t("dashboard.mail.search.placeholder")}
                 className="pl-8"
               />
             </div>
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => void loadMessages()}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <RefreshCcw className="size-4" />
+              )}
+              {t("dashboard.mail.actions.refresh")}
+            </Button>
           </div>
 
-          <div className="max-h-[46vh] overflow-y-auto lg:max-h-[calc(100vh-138px)]">
-            {filteredEmails.map((email) => (
-              <button
-                key={email.id}
-                type="button"
-                onClick={() => setSelectedId(email.id)}
-                className={cn(
-                  "grid w-full gap-2 border-b border-zinc-200 p-4 text-left transition-colors dark:border-zinc-800",
-                  selectedEmail.id === email.id
-                    ? "bg-zinc-100 dark:bg-zinc-800"
-                    : "hover:bg-zinc-50 dark:hover:bg-zinc-800/70",
-                )}
-              >
-                <span className="flex items-start justify-between gap-3">
-                  <span className="min-w-0">
-                    <span
-                      className={cn(
-                        "block truncate text-sm",
-                        email.unread ? "font-semibold" : "font-medium",
-                      )}
-                    >
-                      {email.sender}
-                    </span>
-                    <span className="block truncate text-xs text-zinc-500 dark:text-zinc-400">
-                      {email.email}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
-                    {email.time}
-                  </span>
-                </span>
+          <div className="max-h-[46vh] overflow-y-auto lg:max-h-[calc(100vh-190px)]">
+            {loadError ? (
+              <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+                <AlertCircle className="mb-2 size-4" />
+                {loadError}
+              </div>
+            ) : null}
 
-                <span className="flex items-center gap-2">
-                  {email.unread ? (
-                    <Mail className="size-4 shrink-0 text-sky-600" />
-                  ) : (
-                    <MailOpen className="size-4 shrink-0 text-zinc-400" />
+            {actionStatus ? (
+              <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+                {actionStatus}
+              </div>
+            ) : null}
+
+            {isLoading && messages.length === 0 ? (
+              <div className="flex items-center justify-center gap-2 p-8 text-sm text-zinc-500 dark:text-zinc-400">
+                <Loader2 className="size-4 animate-spin" />
+                {t("dashboard.mail.states.loadingMessages")}
+              </div>
+            ) : null}
+
+            {filteredMessages.map((message) => {
+              const unread = message.label_ids.includes("UNREAD");
+              const starred = message.label_ids.includes("STARRED");
+
+              return (
+                <button
+                  key={message.id}
+                  type="button"
+                  onClick={() => void handleSelectMessage(message)}
+                  className={cn(
+                    "grid w-full gap-2 border-b border-zinc-200 p-4 text-left transition-colors dark:border-zinc-800",
+                    selectedMessage?.id === message.id
+                      ? "bg-zinc-100 dark:bg-zinc-800"
+                      : "hover:bg-zinc-50 dark:hover:bg-zinc-800/70",
                   )}
-                  <span className="min-w-0 truncate text-sm font-medium">
-                    {email.subject}
+                >
+                  <span className="flex items-start justify-between gap-3">
+                    <span className="min-w-0">
+                      <span
+                        className={cn(
+                          "block truncate text-sm",
+                          unread ? "font-semibold" : "font-medium",
+                        )}
+                      >
+                        {getSenderName(
+                          message,
+                          t("dashboard.mail.fallbacks.unknownSender"),
+                        )}
+                      </span>
+                      <span className="block truncate text-xs text-zinc-500 dark:text-zinc-400">
+                        {getSenderEmail(
+                          message,
+                          t("dashboard.mail.fallbacks.noEmailAddress"),
+                        )}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
+                      {getMessageTime(message, i18n.language)}
+                    </span>
                   </span>
-                </span>
 
-                <span className="line-clamp-2 text-sm leading-5 text-zinc-600 dark:text-zinc-300">
-                  {email.preview}
-                </span>
-
-                <span className="flex items-center justify-between">
-                  <span className="rounded-md border border-zinc-200 px-2 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-                    {email.label}
+                  <span className="flex items-center gap-2">
+                    {unread ? (
+                      <Mail className="size-4 shrink-0 text-sky-600" />
+                    ) : (
+                      <MailOpen className="size-4 shrink-0 text-zinc-400" />
+                    )}
+                    <span className="min-w-0 truncate text-sm font-medium">
+                      {message.subject || t("dashboard.mail.fallbacks.noSubject")}
+                    </span>
                   </span>
-                  {email.hasAttachment ? (
-                    <Paperclip className="size-4 text-zinc-400" />
-                  ) : null}
-                </span>
-              </button>
-            ))}
 
-            {filteredEmails.length === 0 ? (
+                  <span className="line-clamp-2 text-sm leading-5 text-zinc-600 dark:text-zinc-300">
+                    {message.snippet ||
+                      message.body ||
+                      t("dashboard.mail.fallbacks.noPreview")}
+                  </span>
+
+                  <span className="flex items-center justify-between">
+                    <span className="rounded-md border border-zinc-200 px-2 py-0.5 text-xs text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
+                      Gmail
+                    </span>
+                    {starred ? (
+                      <Star className="size-4 fill-amber-400 text-amber-500" />
+                    ) : null}
+                  </span>
+                </button>
+              );
+            })}
+
+            {!isLoading && !loadError && filteredMessages.length === 0 ? (
               <div className="p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                No messages found.
+                {t("dashboard.mail.states.noMessages")}
               </div>
             ) : null}
           </div>
         </section>
 
-        <article className="flex min-h-[520px] flex-col bg-zinc-50 dark:bg-zinc-950">
-          <header className="border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-md bg-sky-100 px-2 py-1 text-xs font-medium text-sky-800 dark:bg-sky-950 dark:text-sky-200">
-                    {selectedEmail.label}
-                  </span>
-                  {selectedEmail.unread ? (
-                    <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
-                      New
-                    </span>
-                  ) : null}
+        <article className="flex min-h-130 flex-col bg-zinc-50 dark:bg-zinc-950">
+          {selectedMessage ? (
+            <>
+              <header className="border-b border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-md bg-sky-100 px-2 py-1 text-xs font-medium text-sky-800 dark:bg-sky-950 dark:text-sky-200">
+                        Gmail
+                      </span>
+                      {selectedMessage.label_ids.includes("UNREAD") ? (
+                        <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+                          {t("dashboard.mail.labels.new")}
+                        </span>
+                      ) : null}
+                    </div>
+                    <h2 className="mt-3 text-2xl font-semibold leading-tight">
+                      {selectedMessage.subject ||
+                        t("dashboard.mail.fallbacks.noSubject")}
+                    </h2>
+                    <p className="mt-2 truncate text-sm text-zinc-500 dark:text-zinc-400">
+                      {getSenderName(
+                        selectedMessage,
+                        t("dashboard.mail.fallbacks.unknownSender"),
+                      )}{" "}
+                      &lt;
+                      {getSenderEmail(
+                        selectedMessage,
+                        t("dashboard.mail.fallbacks.noEmailAddress"),
+                      )}
+                      &gt;
+                    </p>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title={
+                        selectedMessage.label_ids.includes("UNREAD")
+                          ? t("dashboard.mail.actions.markRead")
+                          : t("dashboard.mail.actions.markUnread")
+                      }
+                      disabled={pendingMessageAction?.startsWith(selectedMessage.id)}
+                      onClick={() =>
+                        void handleMessageAction(
+                          selectedMessage,
+                          selectedMessage.label_ids.includes("UNREAD")
+                            ? "read"
+                            : "unread",
+                        )
+                      }
+                    >
+                      {selectedMessage.label_ids.includes("UNREAD") ? (
+                        <MailOpen className="size-4" />
+                      ) : (
+                        <Mail className="size-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title={t("dashboard.mail.actions.moveToTrash")}
+                      disabled={pendingMessageAction?.startsWith(selectedMessage.id)}
+                      onClick={() => void handleMessageAction(selectedMessage, "trash")}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
                 </div>
-                <h2 className="mt-3 text-2xl font-semibold leading-tight">
-                  {selectedEmail.subject}
-                </h2>
-                <p className="mt-2 truncate text-sm text-zinc-500 dark:text-zinc-400">
-                  {selectedEmail.sender} &lt;{selectedEmail.email}&gt;
-                </p>
+              </header>
+
+              <div className="flex-1 px-5 py-6 md:px-8">
+                <div className="max-w-3xl whitespace-pre-wrap text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                  {selectedMessage.body ||
+                    selectedMessage.snippet ||
+                    t("dashboard.mail.fallbacks.noBody")}
+                </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-1">
-                <Button variant="ghost" size="icon" title="Remind me">
-                  <Bell className="size-4" />
-                </Button>
-                <Button variant="ghost" size="icon" title="Snooze">
-                  <Clock className="size-4" />
-                </Button>
-                <Button variant="ghost" size="icon" title="Delete">
-                  <Trash2 className="size-4" />
-                </Button>
-                <Button variant="ghost" size="icon" title="More">
-                  <MoreHorizontal className="size-4" />
-                </Button>
-              </div>
+              <footer className="border-t border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    className="gap-2"
+                    onClick={() => {
+                      setComposeForm({
+                        recipients: getSenderEmail(
+                          selectedMessage,
+                          t("dashboard.mail.fallbacks.noEmailAddress"),
+                        ),
+                        subject: selectedMessage.subject?.startsWith("Re:")
+                          ? selectedMessage.subject
+                          : `Re: ${selectedMessage.subject || ""}`,
+                        body: "",
+                        classId:
+                          composeForm.classId ||
+                          (classes[0]?.class_id.toString() ?? ""),
+                        classlist:
+                          composeForm.classlist ||
+                          (classes[0] ? getClassLabel(classes[0]) : ""),
+                        replyToMessageId: selectedMessage.id,
+                      });
+                      setSendStatus(null);
+                      setComposeOpen(true);
+                    }}
+                  >
+                    <Reply className="size-4" />
+                    {t("dashboard.mail.actions.reply")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="gap-2"
+                    disabled={pendingMessageAction?.startsWith(selectedMessage.id)}
+                    onClick={() =>
+                      void handleMessageAction(selectedMessage, "archive")
+                    }
+                  >
+                    <Archive className="size-4" />
+                    {t("dashboard.mail.actions.archive")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    title={
+                      selectedMessage.label_ids.includes("STARRED")
+                        ? t("dashboard.mail.actions.removeStar")
+                        : t("dashboard.mail.actions.starMessage")
+                    }
+                    disabled={pendingMessageAction?.startsWith(selectedMessage.id)}
+                    onClick={() =>
+                      void handleMessageAction(
+                        selectedMessage,
+                        selectedMessage.label_ids.includes("STARRED")
+                          ? "unstar"
+                          : "star",
+                      )
+                    }
+                  >
+                    <Star
+                      className={cn(
+                        "size-4",
+                        selectedMessage.label_ids.includes("STARRED")
+                          ? "fill-amber-400 text-amber-500"
+                          : "text-zinc-500",
+                      )}
+                    />
+                  </Button>
+                </div>
+              </footer>
+            </>
+          ) : (
+            <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+              {t("dashboard.mail.states.selectMessage")}
             </div>
-          </header>
-
-          <div className="flex-1 px-5 py-6 md:px-8">
-            <div className="max-w-3xl space-y-5">
-              <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-                {selectedEmail.body}
-              </p>
-              <p className="text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-                Please reply when you have a moment, and I will keep the thread
-                updated with any changes from the department.
-              </p>
-            </div>
-          </div>
-
-          <footer className="border-t border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex flex-wrap items-center gap-2">
-              <Button className="gap-2">
-                <Reply className="size-4" />
-                Reply
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <Archive className="size-4" />
-                Archive
-              </Button>
-              <Button variant="ghost" size="icon" title="Star message">
-                <Star
-                  className={cn(
-                    "size-4",
-                    selectedEmail.starred
-                      ? "fill-amber-400 text-amber-500"
-                      : "text-zinc-500",
-                  )}
-                />
-              </Button>
-            </div>
-          </footer>
+          )}
         </article>
       </div>
+
+      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+        <DialogContent className="sm:max-w-2xl bg-white dark:bg-zinc-900 dark:text-white">
+          <DialogHeader>
+            <DialogTitle>{t("dashboard.mail.compose.title")}</DialogTitle>
+            <DialogDescription>
+              {t("dashboard.mail.compose.description")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="grid gap-4" onSubmit={handleComposeSubmit}>
+            {user?.role === "admin" && !composeForm.replyToMessageId ? (
+              <label className="grid gap-2 text-sm font-medium">
+                {t("dashboard.mail.compose.additionalRecipients")}
+                <Input
+                  value={composeForm.recipients}
+                  onChange={(event) =>
+                    setComposeForm((form) => ({
+                      ...form,
+                      recipients: event.target.value,
+                    }))
+                  }
+                  placeholder={t("dashboard.mail.compose.recipientsPlaceholder")}
+                />
+              </label>
+            ) : null}
+
+            {!composeForm.replyToMessageId ? (
+              <label className="grid gap-2 text-sm font-medium">
+                {t("dashboard.mail.compose.classList")}
+                <select
+                  value={composeForm.classId}
+                  onChange={(event) =>
+                    setComposeForm((form) => {
+                      const selectedClass = classes.find(
+                        (classRecord) =>
+                          classRecord.class_id.toString() === event.target.value,
+                      );
+
+                      return {
+                        ...form,
+                        classId: event.target.value,
+                        classlist: selectedClass ? getClassLabel(selectedClass) : "",
+                      };
+                    })
+                  }
+                  className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-zinc-600"
+                  required
+                  disabled={classes.length === 0}
+                >
+                  <option value="">
+                    {classes.length === 0
+                      ? t("dashboard.mail.compose.noClasses")
+                      : t("dashboard.mail.compose.selectClass")}
+                  </option>
+                  {classes.map((classRecord) => {
+                    const label = getClassLabel(classRecord);
+                    return (
+                      <option
+                        key={classRecord.class_id}
+                        value={classRecord.class_id}
+                      >
+                        {label}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+            ) : null}
+
+            {classesError ? (
+              <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                {classesError}
+              </div>
+            ) : null}
+
+            <label className="grid gap-2 text-sm font-medium">
+              {t("dashboard.mail.compose.subject")}
+              <Input
+                value={composeForm.subject}
+                onChange={(event) =>
+                  setComposeForm((form) => ({
+                    ...form,
+                    subject: event.target.value,
+                  }))
+                }
+                placeholder={t("dashboard.mail.compose.subjectPlaceholder")}
+                required
+              />
+            </label>
+
+            <label className="grid gap-2 text-sm font-medium">
+              {t("dashboard.mail.compose.message")}
+              <textarea
+                value={composeForm.body}
+                onChange={(event) =>
+                  setComposeForm((form) => ({
+                    ...form,
+                    body: event.target.value,
+                  }))
+                }
+                className="min-h-40 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-zinc-600"
+                placeholder={t("dashboard.mail.compose.messagePlaceholder")}
+                required
+              />
+            </label>
+
+            {sendStatus ? (
+              <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+                {sendStatus}
+              </div>
+            ) : null}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setComposeOpen(false)}
+              >
+                {t("dashboard.mail.actions.cancel")}
+              </Button>
+              <Button type="submit" className="gap-2" disabled={isSending}>
+                {isSending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Send className="size-4" />
+                )}
+                {t("dashboard.mail.actions.sendEmail")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

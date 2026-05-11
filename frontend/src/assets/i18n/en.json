@@ -30,10 +30,78 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "You are logged in."
+    "subtitle": "You are logged in.",
+    "mail": {
+      "title": "Inbox",
+      "counts": "{{unreadCount}} unread, {{readCount}} read",
+      "folders": {
+        "inbox": "Inbox",
+        "starred": "Starred",
+        "sent": "Sent",
+        "archive": "Archive"
+      },
+      "actions": {
+        "compose": "Compose",
+        "composeMessage": "Compose message",
+        "refresh": "Refresh",
+        "reply": "Reply",
+        "archive": "Archive",
+        "cancel": "Cancel",
+        "sendEmail": "Send email",
+        "markRead": "Mark as read",
+        "markUnread": "Mark as unread",
+        "moveToTrash": "Move to trash",
+        "removeStar": "Remove star",
+        "starMessage": "Star message"
+      },
+      "admin": {
+        "manageClasses": "Manage Classes"
+      },
+      "search": {
+        "placeholder": "Search mail"
+      },
+      "labels": {
+        "new": "New"
+      },
+      "states": {
+        "loadingMessages": "Loading Gmail messages",
+        "noMessages": "No messages found.",
+        "selectMessage": "Select a Gmail message to preview it."
+      },
+      "fallbacks": {
+        "unknownSender": "Unknown sender",
+        "noEmailAddress": "No email address",
+        "noSubject": "(No subject)",
+        "noPreview": "No preview available.",
+        "noBody": "No message body available."
+      },
+      "compose": {
+        "title": "Compose email",
+        "description": "Send mail through the connected Gmail API account.",
+        "additionalRecipients": "Additional recipients",
+        "recipientsPlaceholder": "student@example.edu, advisor@example.edu",
+        "classList": "Class list",
+        "noClasses": "No classes available",
+        "selectClass": "Select class",
+        "subject": "Subject",
+        "subjectPlaceholder": "Subject",
+        "message": "Message",
+        "messagePlaceholder": "Write your message"
+      },
+      "validation": {
+        "recipientOrClass": "Add at least one recipient or choose a class.",
+        "classList": "Choose a class list."
+      },
+      "errors": {
+        "loadMessages": "Failed to load messages",
+        "loadClasses": "Failed to load classes",
+        "updateMessage": "Failed to update message.",
+        "sendEmail": "Email was not sent."
+      }
+    }
   },
   "profile": {
-    "userId": "User ID",
+    "userId": "Instructor ID",
     "email": "Email",
     "role": "Role",
     "changePassword": {
@@ -49,12 +117,31 @@
     }
   },
   "manageUsers": {
-    "title": "Manage Users",
-    "subtitle": "Create, review, and remove user accounts.",
-    "addUser": "Add New User",
+    "title": "Manage Instructors",
+    "subtitle": "Create, review, and remove instructor accounts.",
+    "addUser": "Add New Instructor",
+    "createError": "Failed to create instructor",
+    "save": "Save Instructor",
+    "saving": "Saving...",
     "dialog": {
-      "title": "Add New User",
-      "description": "Create a new user account and assign a role."
+      "title": "Add New Instructor",
+      "description": "Create a new instructor account and assign a role."
+    },
+    "bulk": {
+      "button": "Mass Insert Instructors",
+      "title": "Mass Insert Instructors",
+      "description": "Upload a CSV or JSON file to create multiple instructors at once.",
+      "dropTitle": "Drop an instructor file here or click to browse",
+      "dropDescription": "Accepted formats: .csv or .json",
+      "formatHelp": "CSV columns or JSON keys: fname, lname, email, password, role, lang. Use lang values en or es.",
+      "noFile": "Choose a file before uploading.",
+      "defaultError": "Failed to upload instructors.",
+      "createdCount": "{{count}} instructors created.",
+      "rowError": "Row {{row}} ({{email}}): {{error}}",
+      "unknownEmail": "unknown email",
+      "close": "Close",
+      "upload": "Upload Instructors",
+      "uploading": "Uploading..."
     },
     "card": {
       "email": "Email",
@@ -62,7 +149,185 @@
       "selfDeleteDisabled": "You cannot delete your own account.",
       "fname": "First Name",
       "lname": "Last Name",
-      "tempPass": "Temporary Password"
+      "tempPass": "Temporary Password",
+      "userLanguage": "Instructor Language",
+      "english": "English",
+      "spanish": "Espanol"
+    }
+  },
+  "manageClasses": {
+    "title": "Manage Classes",
+    "subtitle": "Create classes and open a class to manage its roster.",
+    "actions": {
+      "refresh": "Refresh",
+      "addClass": "Add Class",
+      "cancel": "Cancel",
+      "close": "Close",
+      "saveClass": "Save Class",
+      "uploading": "Uploading...",
+      "removeClass": "Remove {{name}}"
+    },
+    "fields": {
+      "className": "Class Name",
+      "term": "Term"
+    },
+    "classDialog": {
+      "title": "Add Class",
+      "description": "Create a class group students can be enrolled in."
+    },
+    "classBulk": {
+      "button": "Mass Insert Classes",
+      "title": "Mass Insert Classes",
+      "description": "Upload classes from a CSV or JSON file.",
+      "dropTitle": "Drop a class file here",
+      "dropDescription": "Upload a CSV or JSON file from your computer.",
+      "formatHelp": "CSV headers: name, term. JSON can be an array of class objects or an object with a classes array.",
+      "noFile": "Choose a CSV or JSON file first.",
+      "defaultError": "Class upload failed.",
+      "rowError": "Row {{row}} ({{name}}): {{error}}",
+      "unknownClass": "unknown class",
+      "upload": "Upload Classes"
+    },
+    "classes": {
+      "title": "Classes",
+      "description": "Open a class to manage its students and instructors. Removing a class also removes related assignments and enrollments."
+    },
+    "states": {
+      "loadingClasses": "Loading classes",
+      "noClasses": "No classes found."
+    },
+    "messages": {
+      "classCreated": "Class created.",
+      "classRemoved": "Class removed.",
+      "classesCreatedCount": "{{count}} classes created."
+    },
+    "errors": {
+      "loadClasses": "Failed to load classes",
+      "createClass": "Failed to create class",
+      "removeClass": "Failed to remove class"
+    }
+  },
+  "manageStudents": {
+    "title": "Manage Students",
+    "subtitle": "Create, import, review, and remove student records.",
+    "actions": {
+      "refresh": "Refresh",
+      "addStudent": "Add Student",
+      "addClass": "Add Class",
+      "cancel": "Cancel",
+      "close": "Close",
+      "saveStudent": "Save Student",
+      "saveClass": "Save Class",
+      "uploading": "Uploading...",
+      "enroll": "Enroll",
+      "addStudentToClass": "Add Student",
+      "assignInstructor": "Assign Instructor",
+      "removeStudentFromClass": "Remove {{name}} from class",
+      "removeInstructorFromClass": "Remove {{name}} from class",
+      "removeStudent": "Remove {{name}}",
+      "removeClass": "Remove {{name}}"
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "className": "Class Name",
+      "term": "Term",
+      "selectClass": "Select class",
+      "selectStudent": "Select student",
+      "selectInstructor": "Select instructor"
+    },
+    "studentDialog": {
+      "title": "Add Student",
+      "description": "Create a student contact record."
+    },
+    "classDialog": {
+      "title": "Add Class",
+      "description": "Create a class group students can be enrolled in."
+    },
+    "studentBulk": {
+      "button": "Mass Insert Students",
+      "title": "Mass Insert Students",
+      "description": "Upload students from a CSV or JSON file.",
+      "dropTitle": "Drop a student file here",
+      "dropDescription": "Upload a CSV or JSON file from your computer.",
+      "formatHelp": "CSV headers: fname, lname, email. JSON can be an array of student objects or an object with a students array.",
+      "noFile": "Choose a CSV or JSON file first.",
+      "defaultError": "Student upload failed.",
+      "rowError": "Row {{row}} ({{email}}): {{error}}",
+      "unknownEmail": "unknown email",
+      "upload": "Upload Students"
+    },
+    "classBulk": {
+      "button": "Mass Insert Classes",
+      "title": "Mass Insert Classes",
+      "description": "Upload classes from a CSV or JSON file.",
+      "dropTitle": "Drop a class file here",
+      "dropDescription": "Upload a CSV or JSON file from your computer.",
+      "formatHelp": "CSV headers: name, term. JSON can be an array of class objects or an object with a classes array.",
+      "noFile": "Choose a CSV or JSON file first.",
+      "defaultError": "Class upload failed.",
+      "rowError": "Row {{row}} ({{name}}): {{error}}",
+      "unknownClass": "unknown class",
+      "upload": "Upload Classes"
+    },
+    "search": {
+      "label": "Search students",
+      "placeholder": "Search students"
+    },
+    "classes": {
+      "title": "Classes",
+      "description": "Open a class to manage its students and instructors. Removing a class also removes related assignments and enrollments."
+    },
+    "classDetail": {
+      "title": "Class",
+      "subtitle": "Manage students and instructors for this class.",
+      "back": "Back to classes",
+      "loading": "Loading class",
+      "students": "Students",
+      "studentsDescription": "Add existing student records to this class.",
+      "instructors": "Instructors",
+      "instructorsDescription": "Assign instructors or admins who teach this class.",
+      "invalidClass": "Invalid class."
+    },
+    "states": {
+      "loadingStudents": "Loading students",
+      "notEnrolled": "Not enrolled",
+      "noAvailableClasses": "No available classes",
+      "noAvailableStudents": "No available students",
+      "noAvailableInstructors": "No available instructors",
+      "noStudents": "No students found.",
+      "noClasses": "No classes found.",
+      "noClassStudents": "No students are enrolled in this class.",
+      "noClassInstructors": "No instructors are assigned to this class."
+    },
+    "messages": {
+      "studentCreated": "Student created.",
+      "classCreated": "Class created.",
+      "studentRemoved": "Student removed.",
+      "classRemoved": "Class removed.",
+      "studentEnrolled": "Student enrolled.",
+      "instructorAssigned": "Instructor assigned.",
+      "studentRemovedFromClass": "Student removed from class.",
+      "instructorRemovedFromClass": "Instructor removed from class.",
+      "studentsCreatedCount": "{{count}} students created.",
+      "classesCreatedCount": "{{count}} classes created."
+    },
+    "validation": {
+      "chooseClass": "Choose a class before enrolling the student.",
+      "chooseStudent": "Choose a student before adding them to the class.",
+      "chooseInstructor": "Choose an instructor before assigning them to the class."
+    },
+    "errors": {
+      "loadRecords": "Failed to load academic records",
+      "createStudent": "Failed to create student",
+      "createClass": "Failed to create class",
+      "removeStudent": "Failed to remove student",
+      "removeClass": "Failed to remove class",
+      "enrollStudent": "Failed to enroll student",
+      "assignInstructor": "Failed to assign instructor",
+      "removeStudentFromClass": "Failed to remove student from class",
+      "removeInstructorFromClass": "Failed to remove instructor from class"
     }
   }
 }
