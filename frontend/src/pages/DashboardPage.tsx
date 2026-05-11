@@ -16,6 +16,7 @@ import {
   Shield,
   Star,
   Trash2,
+  Users,
 } from "lucide-react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -33,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import {
   getClasses,
   getGmailMessages,
+  replyToEmail,
   sendEmail,
   updateGmailMessage,
 } from "@/lib/api";
@@ -48,6 +50,7 @@ type ComposeForm = {
   body: string;
   classId: string;
   classlist: string;
+  replyToMessageId: string | null;
 };
 
 const folders: Array<{
@@ -66,6 +69,7 @@ const emptyComposeForm: ComposeForm = {
   body: "",
   classId: "",
   classlist: "",
+  replyToMessageId: null,
 };
 
 function getSenderName(message: GmailMessage, fallback: string) {
@@ -297,26 +301,34 @@ export default function DashboardPage() {
     event.preventDefault();
     setSendStatus(null);
 
+    const isReply = Boolean(composeForm.replyToMessageId);
     const recipients = getRecipients(composeForm.recipients);
-    if (recipients.length === 0 && !composeForm.classId) {
+
+    if (!isReply && recipients.length === 0 && !composeForm.classId) {
       setSendStatus(t("dashboard.mail.validation.recipientOrClass"));
       return;
     }
-    if (!composeForm.classId) {
+    if (!isReply && !composeForm.classId) {
       setSendStatus(t("dashboard.mail.validation.classList"));
       return;
     }
 
     setIsSending(true);
     try {
-      await sendEmail({
-        recipients,
-        subject: composeForm.subject,
-        body: composeForm.body,
-        class_id: Number(composeForm.classId),
-        classlist: composeForm.classlist,
-        prof: user ? `${user.fname} ${user.lname}` : null,
-      });
+      if (composeForm.replyToMessageId) {
+        await replyToEmail(composeForm.replyToMessageId, {
+          body: composeForm.body,
+        });
+      } else {
+        await sendEmail({
+          recipients,
+          subject: composeForm.subject,
+          body: composeForm.body,
+          class_id: Number(composeForm.classId),
+          classlist: composeForm.classlist,
+          prof: user ? `${user.fname} ${user.lname}` : null,
+        });
+      }
       setComposeForm(emptyComposeForm);
       setComposeOpen(false);
       await loadMessages();
@@ -346,6 +358,7 @@ export default function DashboardPage() {
               className="gap-2"
               title={t("dashboard.mail.actions.composeMessage")}
               onClick={() => {
+                setComposeForm(emptyComposeForm);
                 setSendStatus(null);
                 setComposeOpen(true);
               }}
@@ -401,9 +414,19 @@ export default function DashboardPage() {
                   variant="outline"
                   className="col-span-2 justify-start gap-2 lg:col-span-1"
                 >
-                  <Link to="/manage-students">
+                  <Link to="/manage-classes">
                     <BookOpen className="size-4" />
-                    {t("dashboard.mail.admin.manageClasses")}
+                    {t("manageClasses.title")}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="col-span-2 justify-start gap-2 lg:col-span-1"
+                >
+                  <Link to="/manage-students">
+                    <Users className="size-4" />
+                    {t("manageStudents.title")}
                   </Link>
                 </Button>
               </>
@@ -640,6 +663,7 @@ export default function DashboardPage() {
                         classlist:
                           composeForm.classlist ||
                           (classes[0] ? getClassLabel(classes[0]) : ""),
+                        replyToMessageId: selectedMessage.id,
                       });
                       setSendStatus(null);
                       setComposeOpen(true);
@@ -709,60 +733,64 @@ export default function DashboardPage() {
           </DialogHeader>
 
           <form className="grid gap-4" onSubmit={handleComposeSubmit}>
-            <label className="grid gap-2 text-sm font-medium">
-              {t("dashboard.mail.compose.additionalRecipients")}
-              <Input
-                value={composeForm.recipients}
-                onChange={(event) =>
-                  setComposeForm((form) => ({
-                    ...form,
-                    recipients: event.target.value,
-                  }))
-                }
-                placeholder={t("dashboard.mail.compose.recipientsPlaceholder")}
-              />
-            </label>
-
-            <label className="grid gap-2 text-sm font-medium">
-              {t("dashboard.mail.compose.classList")}
-              <select
-                value={composeForm.classId}
-                onChange={(event) =>
-                  setComposeForm((form) => {
-                    const selectedClass = classes.find(
-                      (classRecord) =>
-                        classRecord.class_id.toString() === event.target.value,
-                    );
-
-                    return {
+            {user?.role === "admin" && !composeForm.replyToMessageId ? (
+              <label className="grid gap-2 text-sm font-medium">
+                {t("dashboard.mail.compose.additionalRecipients")}
+                <Input
+                  value={composeForm.recipients}
+                  onChange={(event) =>
+                    setComposeForm((form) => ({
                       ...form,
-                      classId: event.target.value,
-                      classlist: selectedClass ? getClassLabel(selectedClass) : "",
-                    };
-                  })
-                }
-                className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-zinc-600"
-                required
-                disabled={classes.length === 0}
-              >
-                <option value="">
-                  {classes.length === 0
-                    ? t("dashboard.mail.compose.noClasses")
-                    : t("dashboard.mail.compose.selectClass")}
-                </option>
-                {classes.map((classRecord) => {
-                  const label = getClassLabel(classRecord);
-                  return (
-                    <option
-                      key={classRecord.class_id}
-                      value={classRecord.class_id}
-                    >
-                      {label}
-                    </option>
-                  );
-                })}
-              </select>
-            </label>
+                      recipients: event.target.value,
+                    }))
+                  }
+                  placeholder={t("dashboard.mail.compose.recipientsPlaceholder")}
+                />
+              </label>
+            ) : null}
+
+            {!composeForm.replyToMessageId ? (
+              <label className="grid gap-2 text-sm font-medium">
+                {t("dashboard.mail.compose.classList")}
+                <select
+                  value={composeForm.classId}
+                  onChange={(event) =>
+                    setComposeForm((form) => {
+                      const selectedClass = classes.find(
+                        (classRecord) =>
+                          classRecord.class_id.toString() === event.target.value,
+                      );
+
+                      return {
+                        ...form,
+                        classId: event.target.value,
+                        classlist: selectedClass ? getClassLabel(selectedClass) : "",
+                      };
+                    })
+                  }
+                  className="h-8 w-full rounded-lg border border-zinc-200 bg-white px-2.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-zinc-600"
+                  required
+                  disabled={classes.length === 0}
+                >
+                  <option value="">
+                    {classes.length === 0
+                      ? t("dashboard.mail.compose.noClasses")
+                      : t("dashboard.mail.compose.selectClass")}
+                  </option>
+                  {classes.map((classRecord) => {
+                    const label = getClassLabel(classRecord);
+                    return (
+                      <option
+                        key={classRecord.class_id}
+                        value={classRecord.class_id}
+                      >
+                        {label}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+            ) : null}
 
             {classesError ? (
               <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">

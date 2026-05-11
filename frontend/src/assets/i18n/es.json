@@ -101,7 +101,7 @@
     }
   },
   "profile": {
-    "userId": "ID de usuario",
+    "userId": "ID de instructor",
     "email": "Correo electrónico",
     "role": "Rol",
     "changePassword": {
@@ -117,27 +117,30 @@
     }
   },
   "manageUsers": {
-    "title": "Gestionar usuarios",
-    "subtitle": "Crea, revisa y elimina cuentas de usuario.",
-    "addUser": "Agregar usuario",
+    "title": "Gestionar instructores",
+    "subtitle": "Crea, revisa y elimina cuentas de instructores.",
+    "addUser": "Agregar instructor",
+    "createError": "No se pudo crear el instructor",
+    "save": "Guardar instructor",
+    "saving": "Guardando...",
     "dialog": {
-      "title": "Agregar usuario",
-      "description": "Crea una nueva cuenta de usuario y asigna un rol."
+      "title": "Agregar instructor",
+      "description": "Crea una nueva cuenta de instructor y asigna un rol."
     },
     "bulk": {
-      "button": "Insertar usuarios en masa",
-      "title": "Insertar usuarios en masa",
-      "description": "Sube un archivo CSV o JSON para crear varios usuarios a la vez.",
-      "dropTitle": "Arrastra un archivo de usuarios aquí o haz clic para buscar",
+      "button": "Insertar instructores en masa",
+      "title": "Insertar instructores en masa",
+      "description": "Sube un archivo CSV o JSON para crear varios instructores a la vez.",
+      "dropTitle": "Arrastra un archivo de instructores aquí o haz clic para buscar",
       "dropDescription": "Formatos aceptados: .csv o .json",
       "formatHelp": "Columnas CSV o claves JSON: fname, lname, email, password, role, lang. Usa lang en o es.",
       "noFile": "Elige un archivo antes de subirlo.",
-      "defaultError": "No se pudieron subir los usuarios.",
-      "createdCount": "{{count}} usuarios creados.",
+      "defaultError": "No se pudieron subir los instructores.",
+      "createdCount": "{{count}} instructores creados.",
       "rowError": "Fila {{row}} ({{email}}): {{error}}",
       "unknownEmail": "correo desconocido",
       "close": "Cerrar",
-      "upload": "Subir usuarios",
+      "upload": "Subir instructores",
       "uploading": "Subiendo..."
     },
     "card": {
@@ -147,9 +150,184 @@
       "fname": "Nombre",
       "lname": "Apellido",
       "tempPass": "Contraseña temporal",
-      "userLanguage": "Idioma del usuario",
+      "userLanguage": "Idioma del instructor",
       "english": "English",
       "spanish": "Español"
+    }
+  },
+  "manageClasses": {
+    "title": "Gestionar clases",
+    "subtitle": "Crea clases y abre una clase para administrar su lista.",
+    "actions": {
+      "refresh": "Actualizar",
+      "addClass": "Agregar clase",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "saveClass": "Guardar clase",
+      "uploading": "Subiendo...",
+      "removeClass": "Eliminar {{name}}"
+    },
+    "fields": {
+      "className": "Nombre de la clase",
+      "term": "Periodo"
+    },
+    "classDialog": {
+      "title": "Agregar clase",
+      "description": "Crea un grupo de clase en el que se puedan inscribir estudiantes."
+    },
+    "classBulk": {
+      "button": "Insertar clases en masa",
+      "title": "Insertar clases en masa",
+      "description": "Sube clases desde un archivo CSV o JSON.",
+      "dropTitle": "Arrastra un archivo de clases aquí",
+      "dropDescription": "Sube un archivo CSV o JSON desde tu computadora.",
+      "formatHelp": "Encabezados CSV: name, term. JSON puede ser un arreglo de objetos de clases o un objeto con un arreglo classes.",
+      "noFile": "Elige primero un archivo CSV o JSON.",
+      "defaultError": "No se pudieron subir las clases.",
+      "rowError": "Fila {{row}} ({{name}}): {{error}}",
+      "unknownClass": "clase desconocida",
+      "upload": "Subir clases"
+    },
+    "classes": {
+      "title": "Clases",
+      "description": "Abre una clase para administrar sus estudiantes e instructores. Eliminar una clase también elimina las asignaciones e inscripciones relacionadas."
+    },
+    "states": {
+      "loadingClasses": "Cargando clases",
+      "noClasses": "No se encontraron clases."
+    },
+    "messages": {
+      "classCreated": "Clase creada.",
+      "classRemoved": "Clase eliminada.",
+      "classesCreatedCount": "{{count}} clases creadas."
+    },
+    "errors": {
+      "loadClasses": "No se pudieron cargar las clases",
+      "createClass": "No se pudo crear la clase",
+      "removeClass": "No se pudo eliminar la clase"
+    }
+  },
+  "manageStudents": {
+    "title": "Gestionar estudiantes",
+    "subtitle": "Crea, importa, revisa y elimina registros de estudiantes.",
+    "actions": {
+      "refresh": "Actualizar",
+      "addStudent": "Agregar estudiante",
+      "addClass": "Agregar clase",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "saveStudent": "Guardar estudiante",
+      "saveClass": "Guardar clase",
+      "uploading": "Subiendo...",
+      "enroll": "Inscribir",
+      "addStudentToClass": "Agregar estudiante",
+      "assignInstructor": "Asignar instructor",
+      "removeStudentFromClass": "Eliminar {{name}} de la clase",
+      "removeInstructorFromClass": "Eliminar {{name}} de la clase",
+      "removeStudent": "Eliminar {{name}}",
+      "removeClass": "Eliminar {{name}}"
+    },
+    "fields": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "className": "Nombre de la clase",
+      "term": "Periodo",
+      "selectClass": "Seleccionar clase",
+      "selectStudent": "Seleccionar estudiante",
+      "selectInstructor": "Seleccionar instructor"
+    },
+    "studentDialog": {
+      "title": "Agregar estudiante",
+      "description": "Crea un registro de contacto para el estudiante."
+    },
+    "classDialog": {
+      "title": "Agregar clase",
+      "description": "Crea un grupo de clase en el que se puedan inscribir estudiantes."
+    },
+    "studentBulk": {
+      "button": "Insertar estudiantes en masa",
+      "title": "Insertar estudiantes en masa",
+      "description": "Sube estudiantes desde un archivo CSV o JSON.",
+      "dropTitle": "Arrastra un archivo de estudiantes aquí",
+      "dropDescription": "Sube un archivo CSV o JSON desde tu computadora.",
+      "formatHelp": "Encabezados CSV: fname, lname, email. JSON puede ser un arreglo de objetos de estudiantes o un objeto con un arreglo students.",
+      "noFile": "Elige primero un archivo CSV o JSON.",
+      "defaultError": "No se pudieron subir los estudiantes.",
+      "rowError": "Fila {{row}} ({{email}}): {{error}}",
+      "unknownEmail": "correo desconocido",
+      "upload": "Subir estudiantes"
+    },
+    "classBulk": {
+      "button": "Insertar clases en masa",
+      "title": "Insertar clases en masa",
+      "description": "Sube clases desde un archivo CSV o JSON.",
+      "dropTitle": "Arrastra un archivo de clases aquí",
+      "dropDescription": "Sube un archivo CSV o JSON desde tu computadora.",
+      "formatHelp": "Encabezados CSV: name, term. JSON puede ser un arreglo de objetos de clases o un objeto con un arreglo classes.",
+      "noFile": "Elige primero un archivo CSV o JSON.",
+      "defaultError": "No se pudieron subir las clases.",
+      "rowError": "Fila {{row}} ({{name}}): {{error}}",
+      "unknownClass": "clase desconocida",
+      "upload": "Subir clases"
+    },
+    "search": {
+      "label": "Buscar estudiantes",
+      "placeholder": "Buscar estudiantes"
+    },
+    "classes": {
+      "title": "Clases",
+      "description": "Abre una clase para administrar sus estudiantes e instructores. Eliminar una clase también elimina las asignaciones e inscripciones relacionadas."
+    },
+    "classDetail": {
+      "title": "Clase",
+      "subtitle": "Administra estudiantes e instructores para esta clase.",
+      "back": "Volver a clases",
+      "loading": "Cargando clase",
+      "students": "Estudiantes",
+      "studentsDescription": "Agrega registros de estudiantes existentes a esta clase.",
+      "instructors": "Instructores",
+      "instructorsDescription": "Asigna instructores o administradores que enseñan esta clase.",
+      "invalidClass": "Clase no válida."
+    },
+    "states": {
+      "loadingStudents": "Cargando estudiantes",
+      "notEnrolled": "No inscrito",
+      "noAvailableClasses": "No hay clases disponibles",
+      "noAvailableStudents": "No hay estudiantes disponibles",
+      "noAvailableInstructors": "No hay instructores disponibles",
+      "noStudents": "No se encontraron estudiantes.",
+      "noClasses": "No se encontraron clases.",
+      "noClassStudents": "No hay estudiantes inscritos en esta clase.",
+      "noClassInstructors": "No hay instructores asignados a esta clase."
+    },
+    "messages": {
+      "studentCreated": "Estudiante creado.",
+      "classCreated": "Clase creada.",
+      "studentRemoved": "Estudiante eliminado.",
+      "classRemoved": "Clase eliminada.",
+      "studentEnrolled": "Estudiante inscrito.",
+      "instructorAssigned": "Instructor asignado.",
+      "studentRemovedFromClass": "Estudiante eliminado de la clase.",
+      "instructorRemovedFromClass": "Instructor eliminado de la clase.",
+      "studentsCreatedCount": "{{count}} estudiantes creados.",
+      "classesCreatedCount": "{{count}} clases creadas."
+    },
+    "validation": {
+      "chooseClass": "Elige una clase antes de inscribir al estudiante.",
+      "chooseStudent": "Elige un estudiante antes de agregarlo a la clase.",
+      "chooseInstructor": "Elige un instructor antes de asignarlo a la clase."
+    },
+    "errors": {
+      "loadRecords": "No se pudieron cargar los registros académicos",
+      "createStudent": "No se pudo crear el estudiante",
+      "createClass": "No se pudo crear la clase",
+      "removeStudent": "No se pudo eliminar el estudiante",
+      "removeClass": "No se pudo eliminar la clase",
+      "enrollStudent": "No se pudo inscribir al estudiante",
+      "assignInstructor": "No se pudo asignar el instructor",
+      "removeStudentFromClass": "No se pudo eliminar el estudiante de la clase",
+      "removeInstructorFromClass": "No se pudo eliminar el instructor de la clase"
     }
   }
 }

@@ -17,6 +17,7 @@ from app.schemas import (
     BulkCreateStudentsResponse,
     BulkStudentError,
     ClassCreate,
+    ClassDetailResponse,
     ClassResponse,
     EnrollmentRequest,
     InstructorAssignmentRequest,
@@ -306,7 +307,16 @@ def list_classes(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
-    return db.query(ClassGroup).order_by(ClassGroup.term, ClassGroup.name).all()
+    query = db.query(ClassGroup).order_by(ClassGroup.term, ClassGroup.name)
+    if current_user.role.lower() == "admin":
+        return query.all()
+
+    return (
+        query
+        .join(Instructs, Instructs.class_id == ClassGroup.class_id)
+        .filter(Instructs.instructor_id == current_user.id)
+        .all()
+    )
 
 
 @academic_router.post(
@@ -402,7 +412,53 @@ async def bulk_upload_classes(
     for class_group in created_classes:
         db.refresh(class_group)
 
-    return BulkCreateClassesResponse(created=created_classes, errors=errors)
+    return BulkCreateClassesResponse(
+        created=[
+            {
+                "class_id": class_group.class_id,
+                "name": class_group.name,
+                "term": class_group.term,
+            }
+            for class_group in created_classes
+        ],
+        errors=errors,
+    )
+
+
+@academic_router.get("/classes/{class_id}", response_model=ClassDetailResponse)
+def get_class_detail(
+    class_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    class_group = db.get(ClassGroup, class_id)
+    if not class_group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class not found")
+
+    return {
+        "class_id": class_group.class_id,
+        "name": class_group.name,
+        "term": class_group.term,
+        "students": [
+            {
+                "student_id": enrollment.student.student_id,
+                "fname": enrollment.student.fname,
+                "lname": enrollment.student.lname,
+                "email": enrollment.student.email,
+            }
+            for enrollment in class_group.enrollments
+        ],
+        "instructors": [
+            {
+                "id": assignment.instructor.id,
+                "fname": assignment.instructor.fname,
+                "lname": assignment.instructor.lname,
+                "email": assignment.instructor.email,
+                "role": assignment.instructor.role,
+            }
+            for assignment in class_group.instructors
+        ],
+    }
 
 
 @academic_router.delete("/classes/{class_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -484,3 +540,41 @@ def enroll_student(
         ) from exc
 
     return {"ok": True}
+
+
+@academic_router.delete(
+    "/classes/{class_id}/students/{student_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def remove_student_enrollment(
+    class_id: int,
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    enrollment = db.get(Enrollment, {"class_id": class_id, "student_id": student_id})
+    if not enrollment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Enrollment not found")
+
+    db.delete(enrollment)
+    db.commit()
+    return None
+
+
+@academic_router.delete(
+    "/classes/{class_id}/instructors/{instructor_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def remove_instructor_assignment(
+    class_id: int,
+    instructor_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    assignment = db.get(Instructs, {"instructor_id": instructor_id, "class_id": class_id})
+    if not assignment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Instructor assignment not found")
+
+    db.delete(assignment)
+    db.commit()
+    return None

@@ -10,6 +10,7 @@ from app.schemas import (
     GmailMessageListResponse,
     GmailMessageResponse,
     GmailTokenStatusResponse,
+    ReplyEmailRequest,
 )
 from auth.services.auth_service import get_current_active_user, require_admin
 from app.models import ClassGroup, User
@@ -17,6 +18,7 @@ from app.email.send_email import (
     gmail_get_message,
     gmail_list_messages,
     gmail_modify_message_labels,
+    gmail_reply_message,
     gmail_send_message,
     gmail_trash_message,
     generate_gmail_token,
@@ -51,7 +53,7 @@ def message_text(*values: str | None) -> str:
 def user_mail_query(user: User) -> str:
     display_name = user_display_name(user)
     return (
-        f'{{from:"{display_name}" from:{user.email} to:{user.email}}}'
+        f'{{from:"{display_name}" to:"{display_name}" from:{user.email} to:{user.email}}}'
     )
 
 
@@ -72,8 +74,14 @@ def user_can_access_message(user: User, message: dict) -> bool:
 
     sent_by_user = display_name in from_header and system_email in from_header
     received_by_user = user_email in recipient_headers
+    reply_to_user_alias = display_name in recipient_headers and system_email in recipient_headers
 
-    return sent_by_user or received_by_user or user_email in all_headers
+    return (
+        sent_by_user
+        or received_by_user
+        or reply_to_user_alias
+        or user_email in all_headers
+    )
 
 
 def filter_accessible_messages(user: User, response: dict) -> dict:
@@ -118,12 +126,29 @@ def dedupe_recipients(recipients: list[str]) -> list[str]:
     return deduped
 
 
-def get_class_mailing_list(db: Session, class_id: int) -> tuple[str, list[str]]:
+def instructor_teaches_class(user: User, class_group: ClassGroup) -> bool:
+    return any(
+        assignment.instructor_id == user.id
+        for assignment in class_group.instructors
+    )
+
+
+def get_class_mailing_list(
+    db: Session,
+    class_id: int,
+    current_user: User,
+) -> tuple[str, list[str]]:
     class_group = db.get(ClassGroup, class_id)
     if not class_group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Class not found",
+        )
+
+    if not is_admin(current_user) and not instructor_teaches_class(current_user, class_group):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only email classes assigned to you",
         )
 
     recipients = [
@@ -147,8 +172,24 @@ def send_email(
     recipients = get_payload_recipients(payload)
     classlist = payload.classlist or "Academic Admin"
 
+    if not is_admin(current_user) and payload.class_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Choose one of your assigned classes before sending email",
+        )
+
+    if not is_admin(current_user) and recipients:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Instructors can only email assigned class lists",
+        )
+
     if payload.class_id is not None:
-        classlist, class_recipients = get_class_mailing_list(db, payload.class_id)
+        classlist, class_recipients = get_class_mailing_list(
+            db,
+            payload.class_id,
+            current_user,
+        )
         recipients.extend(class_recipients)
 
     recipients = dedupe_recipients(recipients)
@@ -357,6 +398,33 @@ def mark_message_read(
         gmail_modify_message_labels(message_id, remove_label_ids=["UNREAD"])
     except HttpError as exc:
         raise map_gmail_error(exc) from exc
+
+    return {"ok": True}
+
+
+@email_router.post("/messages/{message_id}/reply", status_code=status.HTTP_201_CREATED)
+def reply_to_message(
+    message_id: str,
+    payload: ReplyEmailRequest,
+    current_user: User = Depends(get_current_active_user),
+):
+    original_message = get_authorized_message(message_id, current_user)
+
+    try:
+        gmail_reply_message(
+            original_message=original_message,
+            sender=SYSTEM_EMAIL,
+            prof=user_display_name(current_user),
+            body=payload.body,
+            html_body=payload.html_body,
+        )
+    except HttpError as exc:
+        raise map_gmail_error(exc) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Reply was not sent: {exc}",
+        ) from exc
 
     return {"ok": True}
 

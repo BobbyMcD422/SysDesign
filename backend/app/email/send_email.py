@@ -2,6 +2,7 @@ import base64
 from pathlib import Path
 from collections.abc import Sequence
 from email.message import EmailMessage
+from email.utils import parseaddr
 from typing import Any
 
 from google.auth.exceptions import RefreshError
@@ -217,6 +218,54 @@ def gmail_send_message(sender: str,
   return send_message
 
 
+def gmail_reply_message(
+    original_message: dict[str, Any],
+    sender: str,
+    prof: str,
+    body: str,
+    html_body: str | None = None,
+):
+  """Reply to an existing Gmail message while preserving its thread."""
+  recipient = parseaddr(original_message.get("from_email") or "")[1]
+  if not recipient:
+    raise ValueError("Original message has no reply recipient.")
+
+  subject = original_message.get("subject") or ""
+  reply_subject = subject if subject.lower().startswith("re:") else f"Re: {subject}"
+  original_message_id = original_message.get("message_id")
+  original_references = original_message.get("references")
+  references = " ".join(
+    value
+    for value in [original_references, original_message_id]
+    if value
+  )
+
+  service = get_gmail_service()
+  message = EmailMessage()
+  message.set_content(body)
+  if html_body:
+    message.add_alternative(html_body, subtype="html")
+
+  message["To"] = original_message.get("from_email") or recipient
+  message["From"] = f"{prof}<{sender}>"
+  message["Subject"] = reply_subject
+  if original_message_id:
+    message["In-Reply-To"] = original_message_id
+  if references:
+    message["References"] = references
+
+  encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+  create_message = {"raw": encoded_message}
+  if original_message.get("thread_id"):
+    create_message["threadId"] = original_message["thread_id"]
+  return (
+      service.users()
+      .messages()
+      .send(userId="me", body=create_message)
+      .execute()
+  )
+
+
 def build_gmail_query(
     query: str | None = None,
     sender: str | None = None,
@@ -289,6 +338,8 @@ def summarize_gmail_message(message: dict[str, Any]) -> dict[str, Any]:
     "subject": get_header(headers, "Subject"),
     "date": get_header(headers, "Date"),
     "internal_date": message.get("internalDate"),
+    "message_id": get_header(headers, "Message-ID"),
+    "references": get_header(headers, "References"),
     "body": find_message_body(payload),
   }
 
@@ -313,7 +364,7 @@ def gmail_list_messages(
 
   messages = response.get("messages", [])
   format_type = "full" if include_body else "metadata"
-  metadata_headers = ["From", "To", "Subject", "Date"]
+  metadata_headers = ["From", "To", "Subject", "Date", "Message-ID", "References"]
   results = []
 
   for message in messages:

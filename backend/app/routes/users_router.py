@@ -32,7 +32,7 @@ from auth.services.auth_service import require_admin, get_current_active_user
 
 users_router = APIRouter(
     prefix="/users",
-    tags=["Users"],
+    tags=["Instructors"],
 )
 
 REQUIRED_BULK_USER_FIELDS = {"fname", "lname", "email", "password", "role"}
@@ -65,7 +65,7 @@ def add_user(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="A user with that email already exists",
+            detail="An instructor with that email already exists",
         )
 
     try:
@@ -104,9 +104,9 @@ def parse_bulk_user_file(filename: str, contents: bytes) -> list[dict]:
     if filename.lower().endswith(".json"):
         data = json.loads(text)
         if isinstance(data, dict):
-            data = data.get("users")
+            data = data.get("instructors") or data.get("users")
         if not isinstance(data, list):
-            raise ValueError("JSON file must contain a list of users")
+            raise ValueError("JSON file must contain a list of instructors")
         return data
 
     if filename.lower().endswith(".csv"):
@@ -157,7 +157,7 @@ async def bulk_upload_users(
                 BulkUserError(
                     row=index,
                     email=None,
-                    error="Each row must be an object with user fields",
+                    error="Each row must be an object with instructor fields",
                 )
             )
             continue
@@ -176,7 +176,7 @@ async def bulk_upload_users(
                 password=str(row.get("password", "")),
                 fname=str(row.get("fname", "")),
                 lname=str(row.get("lname", "")),
-                role=str(row.get("role", "user") or "user"),
+                role=str(row.get("role", "instructor") or "instructor"),
                 lang=str(row.get("lang", "en") or "en"),
             )
             created_users.append(
@@ -226,7 +226,7 @@ def remove_user(
     if not deleted_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
+            detail="Instructor not found",
         )
 
     return None
@@ -248,7 +248,7 @@ def change_pw(
     if not updated_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
+            detail="Instructor not found",
         )
 
     return {"ok": True}

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .database import Base
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "instructors"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
@@ -55,7 +55,7 @@ class Instructs(Base):
     __tablename__ = "instructs"
 
     instructor_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("instructors.id", ondelete="CASCADE"),
         primary_key=True,
     )
     class_id: Mapped[int] = mapped_column(

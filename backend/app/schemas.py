@@ -10,7 +10,7 @@ class CreateUserRequest(BaseModel):
     password: str
     fname: str
     lname: str
-    role: str
+    role: str = "instructor"
     lang: str = "en"
 
 class ChangePasswordRequest(BaseModel):
@@ -47,6 +47,10 @@ class ClassResponse(BaseModel):
     class_id: int
     name: str
     term: str
+
+class ClassDetailResponse(ClassResponse):
+    students: list[StudentResponse] = Field(default_factory=list)
+    instructors: list[UserResponse] = Field(default_factory=list)
 
 class BulkClassError(BaseModel):
     row: int
@@ -93,6 +97,10 @@ class CreateEmailRequest(BaseModel):
     classlist: str | None = None
     prof: str | None
 
+class ReplyEmailRequest(BaseModel):
+    body: str
+    html_body: str | None = None
+
 class GmailMessageResponse(BaseModel):
     id: str
     thread_id: str | None = None
@@ -105,6 +113,8 @@ class GmailMessageResponse(BaseModel):
     subject: str | None = None
     date: str | None = None
     internal_date: str | None = None
+    message_id: str | None = None
+    references: str | None = None
     body: str | None = None
 
 class GmailMessageListResponse(BaseModel):

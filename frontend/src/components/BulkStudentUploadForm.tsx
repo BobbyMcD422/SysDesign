@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
@@ -29,6 +30,7 @@ export function BulkStudentUploadForm({
   onCreated,
   onClose,
 }: BulkStudentUploadFormProps) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -48,7 +50,7 @@ export function BulkStudentUploadForm({
     setResults(null);
 
     if (!file) {
-      setError("Choose a CSV or JSON file first.");
+      setError(t("manageStudents.studentBulk.noFile"));
       return;
     }
 
@@ -66,7 +68,7 @@ export function BulkStudentUploadForm({
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(data?.detail || "Student upload failed.");
+        throw new Error(data?.detail || t("manageStudents.studentBulk.defaultError"));
       }
 
       const uploadResults = data as BulkUploadResponse;
@@ -78,7 +80,7 @@ export function BulkStudentUploadForm({
       setError(
         uploadError instanceof Error
           ? uploadError.message
-          : "Student upload failed.",
+          : t("manageStudents.studentBulk.defaultError"),
       );
     } finally {
       setSubmitting(false);
@@ -107,10 +109,10 @@ export function BulkStudentUploadForm({
       >
         <Upload className="size-8 text-zinc-500" />
         <span className="text-sm font-medium">
-          {file ? file.name : "Drop a student file here"}
+          {file ? file.name : t("manageStudents.studentBulk.dropTitle")}
         </span>
         <span className="max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">
-          Upload a CSV or JSON file from your computer.
+          {t("manageStudents.studentBulk.dropDescription")}
         </span>
       </button>
 
@@ -123,22 +125,29 @@ export function BulkStudentUploadForm({
       />
 
       <div className="rounded-lg bg-zinc-50 p-3 text-xs leading-5 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">
-        CSV headers: <span className="font-medium">fname, lname, email</span>.
-        JSON can be an array of student objects or an object with a{" "}
-        <span className="font-medium">students</span> array.
+        {t("manageStudents.studentBulk.formatHelp")}
       </div>
 
       <FieldError>{error}</FieldError>
 
       {results ? (
         <div className="space-y-2 rounded-lg border border-zinc-200 p-3 text-sm dark:border-zinc-700">
-          <p>{results.created.length} students created.</p>
+          <p>
+            {t("manageStudents.messages.studentsCreatedCount", {
+              count: results.created.length,
+            })}
+          </p>
           {results.errors.length > 0 ? (
             <div className="space-y-1 text-red-600 dark:text-red-400">
               {results.errors.map((rowError) => (
                 <p key={`${rowError.row}-${rowError.email ?? "unknown"}`}>
-                  Row {rowError.row} ({rowError.email ?? "unknown email"}):{" "}
-                  {rowError.error}
+                  {t("manageStudents.studentBulk.rowError", {
+                    row: rowError.row,
+                    email:
+                      rowError.email ??
+                      t("manageStudents.studentBulk.unknownEmail"),
+                    error: rowError.error,
+                  })}
                 </p>
               ))}
             </div>
@@ -148,10 +157,12 @@ export function BulkStudentUploadForm({
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onClose}>
-          Close
+          {t("manageStudents.actions.close")}
         </Button>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Uploading..." : "Upload Students"}
+          {submitting
+            ? t("manageStudents.actions.uploading")
+            : t("manageStudents.studentBulk.upload")}
         </Button>
       </div>
     </form>

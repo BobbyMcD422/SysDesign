@@ -92,6 +92,8 @@ export type GmailMessage = {
   subject: string | null
   date: string | null
   internal_date: string | null
+  message_id: string | null
+  references: string | null
   body: string | null
 }
 
@@ -200,12 +202,25 @@ export type ClassRecord = {
   term: string
 }
 
+export type UserRecord = {
+  id: number
+  fname: string
+  lname: string
+  email: string
+  role: string
+}
+
 export type StudentRecord = {
   student_id: number
   fname: string
   lname: string
   email: string
   classes: ClassRecord[]
+}
+
+export type ClassDetailRecord = ClassRecord & {
+  students: Omit<StudentRecord, "classes">[]
+  instructors: UserRecord[]
 }
 
 async function parseApiError(res: Response, fallback: string) {
@@ -270,6 +285,18 @@ export async function getClasses(): Promise<ClassRecord[]> {
   return res.json()
 }
 
+export async function getClassDetail(classId: number): Promise<ClassDetailRecord> {
+  const res = await fetch(`${API_BASE_URL}/api/classes/${classId}`, {
+    credentials: "include",
+  })
+
+  if (!res.ok) {
+    throw await parseApiError(res, "Failed to fetch class")
+  }
+
+  return res.json()
+}
+
 export async function createClass(payload: {
   name: string
   term: string
@@ -316,6 +343,78 @@ export async function enrollStudent(classId: number, studentId: number) {
   }
 
   return res.json().catch(() => null)
+}
+
+export async function replyToEmail(messageId: string, payload: {
+  body: string
+  html_body?: string | null
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/email/messages/${messageId}/reply`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(payload),
+  })
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null)
+    throw new Error(errorData?.detail || "Failed to send reply")
+  }
+
+  return res.json().catch(() => null)
+}
+
+export async function assignInstructor(classId: number, instructorId: number) {
+  const res = await fetch(`${API_BASE_URL}/api/classes/${classId}/instructors`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({ instructor_id: instructorId }),
+  })
+
+  if (!res.ok) {
+    throw await parseApiError(res, "Failed to assign instructor")
+  }
+
+  return res.json().catch(() => null)
+}
+
+export async function removeStudentFromClass(classId: number, studentId: number) {
+  const res = await fetch(`${API_BASE_URL}/api/classes/${classId}/students/${studentId}`, {
+    method: "DELETE",
+    credentials: "include",
+  })
+
+  if (!res.ok) {
+    throw await parseApiError(res, "Failed to remove student from class")
+  }
+}
+
+export async function removeInstructorFromClass(classId: number, instructorId: number) {
+  const res = await fetch(`${API_BASE_URL}/api/classes/${classId}/instructors/${instructorId}`, {
+    method: "DELETE",
+    credentials: "include",
+  })
+
+  if (!res.ok) {
+    throw await parseApiError(res, "Failed to remove instructor from class")
+  }
+}
+
+export async function getUsers(): Promise<UserRecord[]> {
+  const res = await fetch(`${API_BASE_URL}/api/users/`, {
+    credentials: "include",
+  })
+
+  if (!res.ok) {
+    throw await parseApiError(res, "Failed to fetch instructors")
+  }
+
+  return res.json()
 }
 
 export async function changePassword(password: string) {

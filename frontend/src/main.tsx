@@ -11,6 +11,8 @@ import NotFound from "./pages/NotFound";
 import DashboardPage from "./pages/DashboardPage";
 import AdminPage from "./pages/AdminPage";
 import ProfilePage from "./pages/ProfilePage";
+import ManageClassesPage from "./pages/ManageClassesPage";
+import ClassDetailPage from "./pages/ClassDetailPage";
 import ManageStudentsPage from "./pages/ManageStudentsPage";
 
 import { AuthProvider } from "./lib/auth-context";
@@ -35,6 +37,8 @@ const router = createBrowserRouter([
         element: <AdminRoute/>,
         children: [
           { path: "manage-users", element: <AdminPage /> },
+          { path: "manage-classes", element: <ManageClassesPage /> },
+          { path: "manage-classes/:classId", element: <ClassDetailPage /> },
           { path: "manage-students", element: <ManageStudentsPage /> },
         ],
       },

@@ -41,7 +41,7 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
       lname: String(formData.get("lname") ?? ""),
       email: String(formData.get("email") ?? ""),
       password: String(formData.get("password") ?? ""),
-      role: String(formData.get("role") ?? "user"),
+      role: String(formData.get("role") ?? "instructor"),
       lang: String(formData.get("lang") ?? "en"),
     }
 
@@ -57,7 +57,7 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => null)
-        throw new Error(errorData?.detail || "Failed to create user")
+        throw new Error(errorData?.detail || t("manageUsers.createError"))
       }
 
       const newUser = (await res.json()) as User
@@ -65,7 +65,7 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
       form.reset()
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create user")
+      setError(err instanceof Error ? err.message : t("manageUsers.createError"))
     } finally {
       setSubmitting(false)
     }
@@ -131,11 +131,11 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
           <select
             id="role"
             name="role"
-            defaultValue="user"
+            defaultValue="instructor"
             required
             className="h-8 w-full rounded-lg border border-input bg-zinc-300 dark:bg-zinc-700 0 px-2.5 py-1 text-sm"
           >
-            <option value="user">User</option>
+            <option value="instructor">Instructor</option>
             <option value="admin">Admin</option>  
           </select>
         </Field>
@@ -164,7 +164,7 @@ export function CreateUserForm({ onCreated, onClose }: CreateUserFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Saving..." : "Save User"}
+          {submitting ? t("manageUsers.saving") : t("manageUsers.save")}
         </Button>
       </div>
     </form>

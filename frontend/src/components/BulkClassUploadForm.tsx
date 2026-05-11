@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
@@ -29,6 +30,7 @@ export function BulkClassUploadForm({
   onCreated,
   onClose,
 }: BulkClassUploadFormProps) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -48,7 +50,7 @@ export function BulkClassUploadForm({
     setResults(null);
 
     if (!file) {
-      setError("Choose a CSV or JSON file first.");
+      setError(t("manageClasses.classBulk.noFile"));
       return;
     }
 
@@ -66,7 +68,7 @@ export function BulkClassUploadForm({
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(data?.detail || "Class upload failed.");
+        throw new Error(data?.detail || t("manageClasses.classBulk.defaultError"));
       }
 
       const uploadResults = data as BulkUploadResponse;
@@ -78,7 +80,7 @@ export function BulkClassUploadForm({
       setError(
         uploadError instanceof Error
           ? uploadError.message
-          : "Class upload failed.",
+          : t("manageClasses.classBulk.defaultError"),
       );
     } finally {
       setSubmitting(false);
@@ -107,10 +109,10 @@ export function BulkClassUploadForm({
       >
         <Upload className="size-8 text-zinc-500" />
         <span className="text-sm font-medium">
-          {file ? file.name : "Drop a class file here"}
+          {file ? file.name : t("manageClasses.classBulk.dropTitle")}
         </span>
         <span className="max-w-sm text-xs leading-5 text-zinc-500 dark:text-zinc-400">
-          Upload a CSV or JSON file from your computer.
+          {t("manageClasses.classBulk.dropDescription")}
         </span>
       </button>
 
@@ -123,22 +125,29 @@ export function BulkClassUploadForm({
       />
 
       <div className="rounded-lg bg-zinc-50 p-3 text-xs leading-5 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">
-        CSV headers: <span className="font-medium">name, term</span>. JSON can
-        be an array of class objects or an object with a{" "}
-        <span className="font-medium">classes</span> array.
+        {t("manageClasses.classBulk.formatHelp")}
       </div>
 
       <FieldError>{error}</FieldError>
 
       {results ? (
         <div className="space-y-2 rounded-lg border border-zinc-200 p-3 text-sm dark:border-zinc-700">
-          <p>{results.created.length} classes created.</p>
+          <p>
+            {t("manageClasses.messages.classesCreatedCount", {
+              count: results.created.length,
+            })}
+          </p>
           {results.errors.length > 0 ? (
             <div className="space-y-1 text-red-600 dark:text-red-400">
               {results.errors.map((rowError) => (
                 <p key={`${rowError.row}-${rowError.name ?? "unknown"}`}>
-                  Row {rowError.row} ({rowError.name ?? "unknown class"}):{" "}
-                  {rowError.error}
+                  {t("manageClasses.classBulk.rowError", {
+                    row: rowError.row,
+                    name:
+                      rowError.name ??
+                      t("manageClasses.classBulk.unknownClass"),
+                    error: rowError.error,
+                  })}
                 </p>
               ))}
             </div>
@@ -148,10 +157,12 @@ export function BulkClassUploadForm({
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onClose}>
-          Close
+          {t("manageClasses.actions.close")}
         </Button>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Uploading..." : "Upload Classes"}
+          {submitting
+            ? t("manageClasses.actions.uploading")
+            : t("manageClasses.classBulk.upload")}
         </Button>
       </div>
     </form>

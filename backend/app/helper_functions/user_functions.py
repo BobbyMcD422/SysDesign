@@ -31,6 +31,11 @@ class UserEmailDeliveryError(RuntimeError):
     pass
 
 
+def normalize_account_role(role: str) -> str:
+    normalized_role = role.strip().lower()
+    return "instructor" if normalized_role == "user" else normalized_role
+
+
 def normalize_email(email: str) -> str:
     return email.strip().lower()
 
@@ -76,12 +81,12 @@ def send_initial_user_email(user: User, password: str, lang: str = "en"):
         )
     except Exception as exc:
         raise UserEmailDeliveryError(
-            f"User was not created because the welcome email was not sent to {user.email}: {exc}"
+            f"Instructor was not created because the welcome email was not sent to {user.email}: {exc}"
         ) from exc
 
     if not sent_message:
         raise UserEmailDeliveryError(
-            f"User was not created because Gmail returned no message for {user.email}"
+            f"Instructor was not created because Gmail returned no message for {user.email}"
         )
 
 
@@ -124,7 +129,7 @@ def create_user(
 ):
     normalized_email = normalize_email(email)
     if get_user_by_email(db, normalized_email):
-        raise DuplicateEmailError("A user with that email already exists")
+        raise DuplicateEmailError("An instructor with that email already exists")
 
     validate_password_requirements(password)
 
@@ -138,7 +143,7 @@ def create_user(
         password_hash=password_hash,
         fname=fname.strip(),
         lname=lname.strip(),
-        role=role.strip().lower(),
+        role=normalize_account_role(role),
     )
     db.add(user)
     try:
@@ -147,7 +152,7 @@ def create_user(
         db.commit()
     except IntegrityError as exc:
         db.rollback()
-        raise DuplicateEmailError("A user with that email already exists") from exc
+        raise DuplicateEmailError("An instructor with that email already exists") from exc
     except UserEmailDeliveryError:
         db.rollback()
         raise
