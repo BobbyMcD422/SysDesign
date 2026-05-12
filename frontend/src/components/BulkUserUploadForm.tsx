@@ -96,6 +96,7 @@ export function BulkUserUploadForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <button
         type="button"
+        aria-label={t("manageUsers.bulk.dropTitle")}
         onClick={() => inputRef.current?.click()}
         onDragOver={(event) => {
           event.preventDefault()
@@ -112,7 +113,7 @@ export function BulkUserUploadForm({
           dragging && "border-sky-500 bg-sky-50 dark:bg-sky-950",
         )}
       >
-        <Upload className="size-8 text-zinc-500" />
+        <Upload className="size-8 text-zinc-500" aria-hidden="true" />
         <span className="text-sm font-medium">
           {file ? file.name : t("manageUsers.bulk.dropTitle")}
         </span>
@@ -125,6 +126,7 @@ export function BulkUserUploadForm({
         ref={inputRef}
         type="file"
         accept=".csv,.json"
+        aria-label={t("manageUsers.bulk.dropTitle")}
         className="hidden"
         onChange={(event) => handleFiles(event.target.files)}
       />

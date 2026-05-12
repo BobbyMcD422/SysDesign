@@ -13,7 +13,12 @@ export default function LanguageSwitch() {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm">EN</span>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} className="data-[state=checked]:bg-slate-400 data-[state=unchecked]:bg-zinc-700"/>
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        aria-label="Switch language between English and Spanish"
+        className="data-[state=checked]:bg-slate-400 data-[state=unchecked]:bg-zinc-700"
+      />
       <span className="text-sm">ES</span>
     </div>
   )

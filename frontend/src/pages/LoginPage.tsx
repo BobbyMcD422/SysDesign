@@ -54,7 +54,7 @@ export default function LoginPage() {
       <div className="relative hidden bg-muted lg:block">
         <img
           src={bannerPic}
-          alt="Image"
+          alt="Students collaborating in an academic workspace"
           className="absolute top-1/2 -translate-y-1/2 h-3/4 w-full object-cover dark:brightness-[0.8]"
         />
       </div>

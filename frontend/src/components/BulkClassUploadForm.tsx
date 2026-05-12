@@ -91,6 +91,7 @@ export function BulkClassUploadForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <button
         type="button"
+        aria-label={t("manageClasses.classBulk.dropTitle")}
         onClick={() => inputRef.current?.click()}
         onDragOver={(event) => {
           event.preventDefault();
@@ -107,7 +108,7 @@ export function BulkClassUploadForm({
           dragging && "border-sky-500 bg-sky-50 dark:bg-sky-950",
         )}
       >
-        <Upload className="size-8 text-zinc-500" />
+        <Upload className="size-8 text-zinc-500" aria-hidden="true" />
         <span className="text-sm font-medium">
           {file ? file.name : t("manageClasses.classBulk.dropTitle")}
         </span>
@@ -120,6 +121,7 @@ export function BulkClassUploadForm({
         ref={inputRef}
         type="file"
         accept=".csv,.json"
+        aria-label={t("manageClasses.classBulk.dropTitle")}
         className="hidden"
         onChange={(event) => handleFiles(event.target.files)}
       />
