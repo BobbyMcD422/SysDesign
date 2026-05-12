@@ -207,7 +207,19 @@ async def bulk_upload_users(
                 )
             )
 
-    return BulkCreateUsersResponse(created=created_users, errors=errors)
+    return BulkCreateUsersResponse(
+        created=[
+            {
+                "id": user.id,
+                "email": user.email,
+                "fname": user.fname,
+                "lname": user.lname,
+                "role": user.role,
+            }
+            for user in created_users
+        ],
+        errors=errors,
+    )
 
 
 @users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
