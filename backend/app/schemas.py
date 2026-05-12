@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from collections.abc import Sequence
 
 class LoginRequest(BaseModel): 
@@ -17,6 +17,8 @@ class ChangePasswordRequest(BaseModel):
     password: str
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     email: EmailStr
     fname: str
@@ -29,6 +31,8 @@ class StudentCreate(BaseModel):
     email: EmailStr
 
 class StudentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     student_id: int
     fname: str
     lname: str
@@ -44,6 +48,8 @@ class ClassCreate(BaseModel):
     term: str
 
 class ClassResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     class_id: int
     name: str
     term: str
