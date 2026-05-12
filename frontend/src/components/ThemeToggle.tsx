@@ -24,7 +24,13 @@ export default function ThemeToggle() {
 
   return (
     <div className="flex items-center space-x-2">
-      <Switch className="data-[state=checked]:bg-slate-400 data-[state=unchecked]:bg-zinc-700" id="dark-mode" checked={dark} onCheckedChange={setDark} />
+      <Switch
+        className="data-[state=checked]:bg-slate-400 data-[state=unchecked]:bg-zinc-700"
+        id="dark-mode"
+        checked={dark}
+        onCheckedChange={setDark}
+        aria-label={t("app.theme")}
+      />
       <Label htmlFor="dark-mode">{t("app.theme")}</Label>
     </div>
     

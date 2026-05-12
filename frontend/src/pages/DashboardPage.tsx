@@ -376,6 +376,7 @@ export default function DashboardPage() {
                 <button
                   key={folder.id}
                   type="button"
+                  aria-label={t(`dashboard.mail.folders.${folder.id}`)}
                   onClick={() => {
                     setActiveFolder(folder.id);
                     setSelectedId(null);
@@ -388,7 +389,7 @@ export default function DashboardPage() {
                   )}
                 >
                   <span className="flex min-w-0 items-center gap-2">
-                    <Icon className="size-4 shrink-0" />
+                    <Icon className="size-4 shrink-0" aria-hidden="true" />
                     <span className="truncate">
                       {t(`dashboard.mail.folders.${folder.id}`)}
                     </span>
@@ -405,7 +406,7 @@ export default function DashboardPage() {
                   className="col-span-2 mt-2 justify-start gap-2 lg:col-span-1"
                 >
                   <Link to="/manage-users">
-                    <Shield className="size-4" />
+                    <Shield className="size-4" aria-hidden="true" />
                     {t("manageUsers.title")}
                   </Link>
                 </Button>
@@ -415,7 +416,7 @@ export default function DashboardPage() {
                   className="col-span-2 justify-start gap-2 lg:col-span-1"
                 >
                   <Link to="/manage-classes">
-                    <BookOpen className="size-4" />
+                    <BookOpen className="size-4" aria-hidden="true" />
                     {t("manageClasses.title")}
                   </Link>
                 </Button>
@@ -425,7 +426,7 @@ export default function DashboardPage() {
                   className="col-span-2 justify-start gap-2 lg:col-span-1"
                 >
                   <Link to="/manage-students">
-                    <Users className="size-4" />
+                    <Users className="size-4" aria-hidden="true" />
                     {t("manageStudents.title")}
                   </Link>
                 </Button>
@@ -437,7 +438,7 @@ export default function DashboardPage() {
         <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:border-b-0 lg:border-r">
           <div className="space-y-3 border-b border-zinc-200 p-4 dark:border-zinc-800">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -455,9 +456,9 @@ export default function DashboardPage() {
               disabled={isLoading}
             >
               {isLoading ? (
-                <Loader2 className="size-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
               ) : (
-                <RefreshCcw className="size-4" />
+                <RefreshCcw className="size-4" aria-hidden="true" />
               )}
               {t("dashboard.mail.actions.refresh")}
             </Button>
@@ -492,6 +493,10 @@ export default function DashboardPage() {
                 <button
                   key={message.id}
                   type="button"
+                  aria-label={`${getSenderName(
+                    message,
+                    t("dashboard.mail.fallbacks.unknownSender"),
+                  )}: ${message.subject || t("dashboard.mail.fallbacks.noSubject")}`}
                   onClick={() => void handleSelectMessage(message)}
                   className={cn(
                     "grid w-full gap-2 border-b border-zinc-200 p-4 text-left transition-colors dark:border-zinc-800",
@@ -527,9 +532,9 @@ export default function DashboardPage() {
 
                   <span className="flex items-center gap-2">
                     {unread ? (
-                      <Mail className="size-4 shrink-0 text-sky-600" />
+                      <Mail className="size-4 shrink-0 text-sky-600" aria-hidden="true" />
                     ) : (
-                      <MailOpen className="size-4 shrink-0 text-zinc-400" />
+                      <MailOpen className="size-4 shrink-0 text-zinc-400" aria-hidden="true" />
                     )}
                     <span className="min-w-0 truncate text-sm font-medium">
                       {message.subject || t("dashboard.mail.fallbacks.noSubject")}
@@ -547,7 +552,7 @@ export default function DashboardPage() {
                       Gmail
                     </span>
                     {starred ? (
-                      <Star className="size-4 fill-amber-400 text-amber-500" />
+                      <Star className="size-4 fill-amber-400 text-amber-500" aria-hidden="true" />
                     ) : null}
                   </span>
                 </button>
@@ -605,6 +610,11 @@ export default function DashboardPage() {
                           ? t("dashboard.mail.actions.markRead")
                           : t("dashboard.mail.actions.markUnread")
                       }
+                      aria-label={
+                        selectedMessage.label_ids.includes("UNREAD")
+                          ? t("dashboard.mail.actions.markRead")
+                          : t("dashboard.mail.actions.markUnread")
+                      }
                       disabled={pendingMessageAction?.startsWith(selectedMessage.id)}
                       onClick={() =>
                         void handleMessageAction(
@@ -616,19 +626,20 @@ export default function DashboardPage() {
                       }
                     >
                       {selectedMessage.label_ids.includes("UNREAD") ? (
-                        <MailOpen className="size-4" />
+                        <MailOpen className="size-4" aria-hidden="true" />
                       ) : (
-                        <Mail className="size-4" />
+                        <Mail className="size-4" aria-hidden="true" />
                       )}
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       title={t("dashboard.mail.actions.moveToTrash")}
+                      aria-label={t("dashboard.mail.actions.moveToTrash")}
                       disabled={pendingMessageAction?.startsWith(selectedMessage.id)}
                       onClick={() => void handleMessageAction(selectedMessage, "trash")}
                     >
-                      <Trash2 className="size-4" />
+                      <Trash2 className="size-4" aria-hidden="true" />
                     </Button>
                   </div>
                 </div>
@@ -693,6 +704,11 @@ export default function DashboardPage() {
                         ? t("dashboard.mail.actions.removeStar")
                         : t("dashboard.mail.actions.starMessage")
                     }
+                    aria-label={
+                      selectedMessage.label_ids.includes("STARRED")
+                        ? t("dashboard.mail.actions.removeStar")
+                        : t("dashboard.mail.actions.starMessage")
+                    }
                     disabled={pendingMessageAction?.startsWith(selectedMessage.id)}
                     onClick={() =>
                       void handleMessageAction(
@@ -710,6 +726,7 @@ export default function DashboardPage() {
                           ? "fill-amber-400 text-amber-500"
                           : "text-zinc-500",
                       )}
+                      aria-hidden="true"
                     />
                   </Button>
                 </div>
